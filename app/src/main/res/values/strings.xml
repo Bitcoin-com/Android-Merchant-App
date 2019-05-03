@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BCH Merchant</string>
+    <string name="app_name">Bitcoin Cash Register</string>
     <string name="action_settings">Settings</string>
     <string name="action_settings_title">Merchant Settings</string>
-    <string name="action_about">About BCH Merchant</string>
+    <string name="action_about">About Bitcoin Cash Register</string>
     <string name="action_newpin">Change PIN code</string>
     <string name="action_pincode">PIN code</string>
     <string name="hello_world">Hello world!</string>
     <string name="support">Support</string>
     <string name="rate_us">Rate us</string>
     <string name="email_chooser">Send e-mail…</string>
-    <string name="about">BCH Merchant %1$s\n©%2$s</string>
+    <string name="about">Bitcoin Cash Register %1$s\n©%2$s</string>
     <string name="wallet_download">Free Bitcoin Cash Wallet</string>
     
     <string name="tab_settings">Settings</string>
@@ -43,7 +43,7 @@
     <string name="marquee_start">Payment received from</string>
     <string name="notification_end">BCH received</string>
     <string name="generating_qr">Generating QR code…</string>
-    <string name="no_exchange_rate">BCH Merchant has not determined the exchange rate for your selected currency. Please check your Internet connection and try again.</string>
+    <string name="no_exchange_rate">Bitcoin Cash Register has not determined the exchange rate for your selected currency. Please check your Internet connection and try again.</string>
     
     <string name="pin_code_create_error">Enter two matching 4-digit PIN codes</string>
     <string name="pin_code_enter_error">PIN code incorrect</string>

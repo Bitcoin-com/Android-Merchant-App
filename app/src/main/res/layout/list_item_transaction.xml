@@ -20,7 +20,7 @@
             android:layout_gravity="center"
             android:layout_marginRight="16dp"
             android:src="@drawable/ic_done_white_24dp"
-            android:tint="@color/blockchain_green" />
+            android:tint="@color/bch_orange" />
 
         <!-- currency sign, amount column -->
         <TextView

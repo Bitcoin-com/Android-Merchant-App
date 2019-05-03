@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:state_pressed="true" android:color="@color/blockchain_pearl_white">
 		<shape>
-			<solid android:color="@color/blockchain_light_green" />
+			<solid android:color="@color/bch_orange" />
 		</shape>
 	</item>
 	<item android:state_pressed="false">

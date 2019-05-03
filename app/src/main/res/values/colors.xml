@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="bch_orange">#F59332</color>
+    <color name="bch_orange_dark">#FF4E1C</color>
+    <color name="bch_charcoal">#4D4D4D</color>
+    <color name="bch_charcoal_dark">#3D3D3D</color>
+
     <color name="green_mint_tulip">#b6f1e3</color>
     <color name="green_turquoise_blue">#5fe3c5</color>
     <color name="green_caribbean_green">#00c58a</color>

@@ -18,13 +18,12 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blockchain_darker_green"
+            android:background="@color/bch_orange"
             android:minHeight="?attr/actionBarSize"
-            app:tabIndicatorColor="@color/blockchain_light_green"
-            app:tabIndicatorHeight="6dp"
             app:tabGravity="fill"
-            app:tabMaxWidth="0dp"
-            />
+            app:tabIndicatorColor="@color/bch_orange"
+            app:tabIndicatorHeight="6dp"
+            app:tabMaxWidth="0dp" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"

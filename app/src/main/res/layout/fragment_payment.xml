@@ -55,9 +55,9 @@
         android:id="@+id/iv_charge"
         android:layout_width="match_parent"
         android:layout_height="72dp"
+        android:background="@color/bch_orange"
         android:gravity="center"
-        android:src="@drawable/ic_done_white_48dp"
         android:scaleType="center"
-        android:background="@color/blockchain_green"/>
+        android:src="@drawable/ic_done_white_48dp" />
 
 </LinearLayout>

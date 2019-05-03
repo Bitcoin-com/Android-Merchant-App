@@ -34,10 +34,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="1"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -69,10 +67,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="2"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -104,10 +100,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="3"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -148,10 +142,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="4"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -183,10 +175,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="5"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -218,10 +208,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="6"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -261,10 +249,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="7"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -296,10 +282,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="8"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -331,10 +315,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="9"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -372,7 +354,7 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text=" "
-                android:textColor="@color/green_tropical_rain_forest"
+                android:textColor="@color/bch_charcoal"
                 android:textSize="@dimen/pinentry_num_text_size"
                 >
             </TextView>
@@ -408,10 +390,8 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="0"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
+                android:textColor="@color/bch_charcoal"
+                android:textSize="@dimen/pinentry_num_text_size"></TextView>
 
             <TextView
                 android:layout_width="wrap_content"
