@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.preference.Preference;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bitcoin.merchant.app.R;
 import com.bitcoin.merchant.app.currency.CountryCurrency;
@@ -49,7 +49,7 @@ public class CurrencySelectionDialog {
         }
     }
 
-    public boolean show(final Preference fiatPref) {
+    public boolean show() {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         final List<CountryCurrency> currencies = CurrencyExchange.getInstance(ctx).getCountryCurrencies();
         ListAdapter adapter = new ArrayAdapterWithIcon(ctx, currencies);
@@ -62,7 +62,7 @@ public class CurrencySelectionDialog {
                     return;
                 }
                 dialog.dismiss();
-                save(fiatPref, cc, locale);
+                save(cc, locale);
             }
         });
         builder.setCancelable(true);
@@ -72,13 +72,13 @@ public class CurrencySelectionDialog {
         return true;
     }
 
-    private void save(Preference fiatPref, CountryCurrency cc, String locale) {
+    private void save(CountryCurrency cc, String locale) {
         PrefsUtil prefsUtil = PrefsUtil.getInstance(ctx);
         prefsUtil.setValue(PrefsUtil.MERCHANT_KEY_CURRENCY, cc.currencyRate.code);
         prefsUtil.setValue(PrefsUtil.MERCHANT_KEY_COUNTRY, cc.countryLocales.country);
         prefsUtil.setValue(PrefsUtil.MERCHANT_KEY_LOCALE, locale);
         Intent intent = new Intent(PaymentInputFragment.ACTION_INTENT_RESET_AMOUNT);
         LocalBroadcastManager.getInstance(ctx).sendBroadcast(intent);
-        ctx.setCurrencySummary(fiatPref, cc);
+        ctx.setCurrencySummary(cc);
     }
 }

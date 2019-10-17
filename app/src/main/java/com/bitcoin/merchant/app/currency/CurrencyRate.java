@@ -1,7 +1,5 @@
 package com.bitcoin.merchant.app.currency;
 
-import com.bitcoin.merchant.app.BuildConfig;
-
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.TreeMap;

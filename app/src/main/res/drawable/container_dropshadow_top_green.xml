@@ -4,7 +4,6 @@
 
     <gradient
         android:angle="270"
-        android:endColor="@color/blockchain_dark_green"
-        android:startColor="@color/blockchain_off_white" />
+        android:endColor="@color/bitcoindotcom_dark_green" />
 
 </shape>

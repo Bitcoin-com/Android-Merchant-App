@@ -8,7 +8,6 @@ public class TypefaceUtil {
     private static TypefaceUtil instance = null;
 
     private TypefaceUtil() {
-        ;
     }
 
     public static TypefaceUtil getInstance(Context ctx, String ttfFilePath) {

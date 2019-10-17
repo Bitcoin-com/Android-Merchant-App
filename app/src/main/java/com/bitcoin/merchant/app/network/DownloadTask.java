@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -144,7 +145,7 @@ public abstract class DownloadTask<R> {
     public static String readStream(InputStream stream) throws IOException {
         byte[] tempBuffer = new byte[65536];
         byte[] bytes = loadBytes(stream, tempBuffer);
-        return new String(bytes, "UTF-8");
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public static byte[] loadBytes(InputStream is, byte[] tempBuffer) throws IOException {

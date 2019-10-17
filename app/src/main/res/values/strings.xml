@@ -57,11 +57,10 @@
 
 <!-- <string name="bitcoin_currency_symbol">&#xf15a;</string> -->
     <string name="bitcoin_currency_symbol">BCH</string>
-    <string name="enter_pin">Enter Pin</string>
-    <string name="create_pin">Create Pin</string>
-    <string name="confirm_pin">Confirm Pin</string>
+    <string name="create_pin">Create passcode</string>
+    <string name="confirm_pin">Confirm passcode</string>
     <string name="unrecognized_xpub">Unrecognized public key format</string>
-    <string name="payment_received">Payment Received. Thank you.</string>
+    <string name="payment_received">Payment complete. Thank you.</string>
     <string name="unable_to_generate_address">An address cannot be generated at this time. Please check your installation and try again.</string>
     <string name="btc_limit_reached">Bitcoin Cash limit reached.</string>
 
@@ -93,10 +92,7 @@
     <string name="options_forget_payment_address_text">If you forget this payment address you will not be able to accept Bitcoin Cash payments until you add a new one.</string>
     <string name="options_receiving_payments">Receiving payments</string>
     <string name="options_new_payment_address">New payment address</string>
-    <string name="options_explain_payment_address">A payment address is a Bitcoin Cash address that you control or the extended public key (xPub) of your wallet.\n\nUsing the extended public key from your Wallet is the best way to set your payment address because it increases your privacy while making accounting easier by generating a new address for each transaction.</string>
     <string name="options_download_wallet">If you do not have a Bitcoin Cash wallet, create one for free by clicking here:\n\nhttps://wallet.bitcoin.com</string>
-    <string name="options_add_payment_address">Add payment address</string>
-    <string name="options_add_payment_address_text">You can use an Extended Public Key or any Bitcoin Cash address from your wallet. Paste or Scan the QR code displayed in your wallet.</string>
 
     <string name="scan">Scan</string>
     <string name="paste">Paste</string>
@@ -108,5 +104,23 @@
 
     <string name="pull_to_refresh_tap_label">Tap to refresh…</string>
     <string name="receive_coins_fragment_email_address_hint">Adresse e-mail</string>
-    <string name="waiting_for_payment">Waiting For Payment</string>
+    <string name="waiting_for_payment">Scan to Pay</string>
+
+    <!--
+    Translations needed
+    -->
+    <string name="confirm_request">Checkout</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="powered_by">Powered by</string>
+    <string name="bitcoindotcom">Bitcoin.com</string>
+    <string name="enter_pin">Enter passcode</string>
+    <string name="syncing_xpub">Syncing xpub…</string>
+    <string name="synced_xpub">xpub synced!</string>
+    <string name="about_title">About</string>
+    <string name="no_history_text">This Cash Register does not have a transaction history.</string>
+    <string name="options_explain_payment_address">A destination address can either be a Bitcoin Cash address, Extended Public Key, or a pay.bitcoin.com Access Key.</string>
+    <string name="options_add_payment_address">Add destination address</string>
+    <string name="options_add_payment_address_text">You can use any Bitcoin Cash address from your wallet, an Extended Public Key, or a pay.bitcoin.com Access Key.</string>
+    <string name="save">Save</string>
 </resources>

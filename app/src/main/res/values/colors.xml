@@ -1,28 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="green_mint_tulip">#b6f1e3</color>
-    <color name="green_turquoise_blue">#5fe3c5</color>
-    <color name="green_caribbean_green">#00c58a</color>
-    <color name="green_tropical_rain_forest">#006e55</color>
-    <color name="green_cyprus">#00423b</color>
-
     <color name="blockchain_red">#FA343A</color>
-    <color name="blockchain_pearl_white">#fafafa</color>
-    <color name="blockchain_off_white">#fafafa</color>
     <color name="blockchain_grey">#FF808080</color>
     <color name="blockchain_light_grey">#FFf0f0f0</color>
     <color name="blockchain_navigation_bar">#FF000000</color>
-    <color name="blockchain_light_green">#5fda57</color>
-    <color name="blockchain_green">#4bc846</color>
-    <color name="blockchain_dark_green">#00970f</color>
-    <!-- Color used by Tabs & Top bar -->
-    <color name="blockchain_darker_green">#00970f</color>
-    <color name="blockchain_darkest_green">#008000</color>
-    <color name="blockchain_receive_green">#4bc846</color>
     <color name="textColorPrimary">#FF000000</color>
     <color name="textColorSecondary">#FF222222</color>
 
-    <color name="white">#FFffff</color>
+    <color name="white">#fff</color>
+    <color name="gray">#ccc</color>
+    <color name="black">#000</color>
     <color name="white_50">#80ffffff</color>
 
     <color name="dropshadow_grey">#CCCCCC</color>
@@ -33,5 +20,10 @@
     <color name="toast_warning_text">#775B2A</color>
     <color name="toast_info_background">#D8F296</color>
     <color name="toast_info_text">#4F772F</color>
+    <color name="bitcoindotcom_light_green">#00D897</color>
+    <color name="bitcoindotcom_green">#00c58a</color>
+    <color name="bitcoindotcom_dark_green">#009B6C</color>
+    <color name="bitcoindotcom_darker_green">#009B6C</color>
+    <color name="bitcoindotcom_darkest_green">#00704E</color>
 
 </resources>

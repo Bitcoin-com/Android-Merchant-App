@@ -28,12 +28,12 @@ public class ExpectedPayments {
 
     public void addExpectedPayment(String receivingAddress, long bchAmount, String fiatAmount) {
         addressToAmounts.put(receivingAddress, new ExpectedAmounts(bchAmount, fiatAmount));
-        Log.i(ExpectedPayments.class.getSimpleName(), addressToAmounts.size() +  " Pending payments: " + addressToAmounts.toString());
+        Log.i(ExpectedPayments.class.getSimpleName(), addressToAmounts.size() + " Pending payments: " + addressToAmounts.toString());
     }
 
     public void removePayment(String receivingAddress) {
         addressToAmounts.remove(receivingAddress);
-        Log.i(ExpectedPayments.class.getSimpleName(), addressToAmounts.size() +  " Pending payments: " + addressToAmounts.toString());
+        Log.i(ExpectedPayments.class.getSimpleName(), addressToAmounts.size() + " Pending payments: " + addressToAmounts.toString());
     }
 
     public ExpectedAmounts getExpectedAmounts(String receivingAddress) {

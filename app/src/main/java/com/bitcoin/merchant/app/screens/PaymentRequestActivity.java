@@ -14,13 +14,15 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bitcoin.merchant.app.MainActivity;
 import com.bitcoin.merchant.app.R;
@@ -30,8 +32,8 @@ import com.bitcoin.merchant.app.screens.dialogs.PaymentTooLowDialog;
 import com.bitcoin.merchant.app.util.AmountUtil;
 import com.bitcoin.merchant.app.util.AppUtil;
 import com.bitcoin.merchant.app.util.MonetaryUtil;
-import com.bitcoin.merchant.app.util.PrefsUtil;
 import com.bitcoin.merchant.app.util.ToastCustom;
+import com.github.kiulian.converter.AddressConverter;
 import com.google.bitcoin.uri.BitcoinCashURI;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -46,13 +48,14 @@ import java.math.BigInteger;
 import static com.bitcoin.merchant.app.MainActivity.TAG;
 
 public class PaymentRequestActivity extends Activity {
-    private TextView tvMerchantName = null;
+    private LinearLayout waitingLayout = null;
+    private LinearLayout receivedLayout = null;
     private TextView tvFiatAmount = null;
     private TextView tvBtcAmount = null;
     private ImageView ivReceivingQr = null;
     private LinearLayout progressLayout = null;
-    private ImageView ivCancel = null;
-    private ImageView ivCheck = null;
+    private Button ivCancel = null;
+    private Button ivDone = null;
     private TextView tvStatus = null;
     private String receivingAddress = null;
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -60,11 +63,18 @@ public class PaymentRequestActivity extends Activity {
         public void onReceive(Context context, final Intent intent) {
             if (MainActivity.ACTION_INTENT_EXPECTED_PAYMENT_RECEIVED.equals(intent.getAction())) {
                 PaymentReceived p = new PaymentReceived(intent);
-                if (receivingAddress == null || !receivingAddress.equalsIgnoreCase(p.addr)) {
-                    // different address: might be a previous one, keep the payment request
+                if (receivingAddress == null)
                     return;
+                else {
+                    if (!receivingAddress.equalsIgnoreCase(p.addr)) {
+                        // different address: might be a previous one, keep the payment request
+                        return;
+                    }
                 }
                 onPaymentReceived(p);
+            }
+            if (MainActivity.ACTION_INVOICE_PAYMENT_EXPIRED.equals(intent.getAction())) {
+                cancelPayment();
             }
         }
     };
@@ -78,8 +88,7 @@ public class PaymentRequestActivity extends Activity {
                     showCheckMark();
                 }
             };
-            new PaymentTooLowDialog(this)
-                    .showUnderpayment(p.bchReceived, p.bchExpected, closingAction);
+            new PaymentTooLowDialog(this).showUnderpayment(p.bchReceived, p.bchExpected, closingAction);
         } else if (p.isOverpayment()) {
             showCheckMark();
             new PaymentTooHighDialog(this).showOverpayment();
@@ -98,19 +107,17 @@ public class PaymentRequestActivity extends Activity {
         // avoid to mistakenly discard the window
         setFinishOnTouchOutside(false);
         //Register receiver (Listen for incoming tx)
-        IntentFilter filter = new IntentFilter(MainActivity.ACTION_INTENT_EXPECTED_PAYMENT_RECEIVED);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MainActivity.ACTION_INTENT_EXPECTED_PAYMENT_RECEIVED);
+        filter.addAction(MainActivity.ACTION_INVOICE_PAYMENT_EXPIRED);
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         broadcastManager.registerReceiver(receiver, filter);
-        // ensure that we are connected
-        broadcastManager.sendBroadcast(new Intent(MainActivity.ACTION_INTENT_RECONNECT));
-        //Incoming intent value
         double amountFiat = this.getIntent().getDoubleExtra(PaymentInputFragment.AMOUNT_PAYABLE_FIAT, 0.0);
-        double amountBch = this.getIntent().getDoubleExtra(PaymentInputFragment.AMOUNT_PAYABLE_BTC, 0.0);
         AmountUtil f = new AmountUtil(this);
+        double amountBch = this.getIntent().getDoubleExtra(PaymentInputFragment.AMOUNT_PAYABLE_BTC, 0.0);
         tvFiatAmount.setText(f.formatFiat(amountFiat));
         tvBtcAmount.setText(f.formatBch(amountBch));
         getReceiveAddress(PaymentRequestActivity.this, amountBch, tvFiatAmount.getText().toString());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(MainActivity.ACTION_QUERY_MISSING_TX_IN_MEMPOOL));
     }
 
     @Override
@@ -120,17 +127,16 @@ public class PaymentRequestActivity extends Activity {
     }
 
     private void initViews() {
-        tvMerchantName = findViewById(R.id.tv_merchant_name);
-        tvMerchantName.setText(PrefsUtil.getInstance(this).getValue(PrefsUtil.MERCHANT_KEY_MERCHANT_NAME, ""));
         tvFiatAmount = findViewById(R.id.tv_fiat_amount);
         tvBtcAmount = findViewById(R.id.tv_btc_amount);
         ivReceivingQr = findViewById(R.id.qr);
         progressLayout = findViewById(R.id.progressLayout);
+        waitingLayout = findViewById(R.id.layout_waiting);
+        receivedLayout = findViewById(R.id.layout_complete);
         ivCancel = findViewById(R.id.iv_cancel);
-        ivCheck = findViewById(R.id.iv_check);
+        ivDone = findViewById(R.id.iv_done);
         tvStatus = findViewById(R.id.tv_status);
         ivReceivingQr.setVisibility(View.GONE);
-        ivCheck.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
@@ -140,18 +146,26 @@ public class PaymentRequestActivity extends Activity {
         };
         ivCancel.setOnClickListener(listener);
         ivReceivingQr.setOnClickListener(listener);
+        waitingLayout.setVisibility(View.VISIBLE);
+        receivedLayout.setVisibility(View.GONE);
     }
 
     private void clickButton(View v) {
         switch (v.getId()) {
             case R.id.iv_cancel:
-                onBackPressed();
-                LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(MainActivity.ACTION_QUERY_MISSING_TX_THEN_ALL_UTXO));
+                cancelPayment();
                 break;
             case R.id.qr:
                 copyQrCodeToClipboard();
                 break;
         }
+    }
+
+    private void cancelPayment() {
+        Log.d(TAG, "Canceling payment...");
+        onBackPressed();
+        ExpectedPayments.getInstance().removePayment(receivingAddress);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(MainActivity.ACTION_STOP_LISTENING_FOR_BIP70));
     }
 
     private void copyQrCodeToClipboard() {
@@ -166,7 +180,7 @@ public class PaymentRequestActivity extends Activity {
     }
 
     private void displayQRCode(long lamount) {
-        String uri = BitcoinCashURI.toCashAddress(receivingAddress);
+        String uri = AddressConverter.toCashAddress(receivingAddress);
         try {
             BigInteger bamount = MonetaryUtil.getInstance(this).getUndenominatedAmount(lamount);
             if (bamount.compareTo(BigInteger.valueOf(2100000000000000L)) == 1) {
@@ -267,27 +281,23 @@ public class PaymentRequestActivity extends Activity {
 
     private long getLongAmount(double amountPayable) {
         double value = Math.round(amountPayable * 100000000.0);
-        long longValue = (Double.valueOf(value)).longValue();
-        return longValue;
+        return (Double.valueOf(value)).longValue();
     }
 
     private void showCheckMark() {
         setFinishOnTouchOutside(true); // now allow easy dismissal
-        ivCancel.setVisibility(View.GONE);
-        ivReceivingQr.setVisibility(View.GONE);
-        ivCheck.setVisibility(View.VISIBLE);
-        ivCheck.setOnClickListener(new View.OnClickListener() {
+        waitingLayout.setVisibility(View.GONE);
+        receivedLayout.setVisibility(View.VISIBLE);
+        AppUtil.setStatusBarColor(PaymentRequestActivity.this, R.color.bitcoindotcom_green);
+        ivDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AppUtil.setStatusBarColor(PaymentRequestActivity.this, R.color.gray);
                 Intent intent = new Intent();
                 PaymentRequestActivity.this.setResult(RESULT_OK, intent);
                 PaymentRequestActivity.this.finish();
             }
         });
-        tvStatus.setText(getResources().getText(R.string.payment_received));
-        tvStatus.setTextColor(getResources().getColor(R.color.blockchain_receive_green));
-        tvBtcAmount.setVisibility(View.GONE);
-        tvFiatAmount.setVisibility(View.INVISIBLE); // INVISIBLE instead of gone to keep some padding
         setResult(RESULT_OK);
     }
 
@@ -307,5 +317,11 @@ public class PaymentRequestActivity extends Activity {
             // usually happens when activity is being closed while background task is executing
             Log.e(TAG, "Failed write2NFC: " + uri, e);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(PaymentInputFragment.ACTION_INTENT_RESET_AMOUNT));
     }
 }

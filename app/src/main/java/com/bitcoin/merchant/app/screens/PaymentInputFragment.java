@@ -6,22 +6,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bitcoin.merchant.app.MainActivity;
 import com.bitcoin.merchant.app.R;
+import com.bitcoin.merchant.app.currency.CountryCurrency;
 import com.bitcoin.merchant.app.currency.CurrencyExchange;
 import com.bitcoin.merchant.app.util.AppUtil;
 import com.bitcoin.merchant.app.util.MonetaryUtil;
 import com.bitcoin.merchant.app.util.SnackCustom;
 import com.bitcoin.merchant.app.util.ToastCustom;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Currency;
@@ -39,10 +43,25 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
     public double amountPayableFiat = 0.0;
     public double amountPayableBch = 0.0;
     private View rootView = null;
+    private TextView tvCurrencySymbol = null;
     private TextView tvAmount = null;
-    private ImageView ivCharge = null;
-    private TextView tvCurrency = null;
+    private Button ivCharge = null;
+    private Button button0 = null;
+    private Button button1 = null;
+    private Button button2 = null;
+    private Button button3 = null;
+    private Button button4 = null;
+    private Button button5 = null;
+    private Button button6 = null;
+    private Button button7 = null;
+    private Button button8 = null;
+    private Button button9 = null;
+    private Button buttonDecimal = null;
+    private Button buttonDeleteBack = null;
+    private TextView tvBch = null;
     private NumberFormat nf = null;
+    private DecimalFormat df = null;
+    private DecimalFormatSymbols dfs = null;
     private String strDecimal = null;
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -59,16 +78,20 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_payment, container, false);
         nf = NumberFormat.getInstance(Locale.getDefault());
+        dfs = new DecimalFormatSymbols();
+        df = new DecimalFormat("#.########", dfs);
+        tvCurrencySymbol = rootView.findViewById(R.id.tv_currency_symbol);
         tvAmount = rootView.findViewById(R.id.tv_fiat_amount);
         ivCharge = rootView.findViewById(R.id.iv_charge);
         ivCharge.setOnClickListener(this);
-        tvCurrency = rootView.findViewById(R.id.tv_currency);
-        initPadClickListeners();
-        initValues();
+        tvBch = rootView.findViewById(R.id.tv_bch);
+        initalizeButtons();
+        updateAmounts();
         initDecimalButton();
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_INTENT_RESET_AMOUNT);
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(receiver, filter);
+        tvCurrencySymbol.setText(getCurrencySymbol());
         return rootView;
     }
 
@@ -81,12 +104,12 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
     @Override
     public void onResume() {
         super.onResume();
-        initValues();
+        updateAmounts();
         initDecimalButton();
+        tvCurrencySymbol.setText(getCurrencySymbol());
     }
 
     private void initDecimalButton() {
-        TextView textView = rootView.findViewById(R.id.decimal);
         strDecimal = Character.toString(MonetaryUtil.getInstance().getDecimalFormatSymbols().getDecimalSeparator());
         try {
             Currency instance = Currency.getInstance(AppUtil.getCurrency(getContext()));
@@ -94,70 +117,102 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
             boolean enabled = allowedDecimalPlaces > 0;
             View buttonView = rootView.findViewById(R.id.buttonDecimal);
             buttonView.setEnabled(enabled);
-            textView.setText(enabled ? strDecimal : "");
+            buttonDecimal.setText(enabled ? strDecimal : "");
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void initValues() {
-        if (tvCurrency != null) {
-            tvCurrency.setText(getCurrency());
-        }
-        updateAmounts();
     }
 
     private String getCurrency() {
         return AppUtil.getCurrency(getActivity());
     }
 
-    private void initPadClickListeners() {
-        rootView.findViewById(R.id.button0).setOnClickListener(this);
-        rootView.findViewById(R.id.button1).setOnClickListener(this);
-        rootView.findViewById(R.id.button2).setOnClickListener(this);
-        rootView.findViewById(R.id.button3).setOnClickListener(this);
-        rootView.findViewById(R.id.button4).setOnClickListener(this);
-        rootView.findViewById(R.id.button5).setOnClickListener(this);
-        rootView.findViewById(R.id.button6).setOnClickListener(this);
-        rootView.findViewById(R.id.button7).setOnClickListener(this);
-        rootView.findViewById(R.id.button8).setOnClickListener(this);
-        rootView.findViewById(R.id.button9).setOnClickListener(this);
-        rootView.findViewById(R.id.buttonDecimal).setOnClickListener(this);
-        rootView.findViewById(R.id.buttonDeleteBack).setOnClickListener(this);
+    private String getCurrencySymbol() {
+        String currency = AppUtil.getCurrency(getContext());
+        String country = AppUtil.getCountry(getContext());
+        String locale = AppUtil.getLocale(getContext());
+        CountryCurrency cc = CurrencyExchange.getInstance(getContext()).getCountryCurrency(currency, country, locale);
+        if (cc != null) {
+            if (cc.currencyRate.symbol != null) {
+                return cc.currencyRate.symbol;
+            } else {
+                /* The currency symbols displayed on the payment request screen are not able to be grabbed from the Currency class, or from CountryCurrency.
+                   A prime example of this is country AOA. NumberFormat gives Kz for its symbol, yet you can't grab it from any object.
+                   Here we format a fake balance (0) then remove all digits, periods, commas, etc. to get the symbol.
+
+                   It's kinda hacky but it works.
+                 */
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(cc.countryLocales.getLocale());
+                Currency instance = Currency.getInstance(currency);
+                formatter.setCurrency(instance);
+                formatter.setMaximumFractionDigits(instance.getDefaultFractionDigits());
+                String formatted = formatter.format(0);
+                return formatted.replaceAll("[\\d., ]", "");
+            }
+        }
+        return "";
+    }
+
+
+    private void initalizeButtons() {
+        button0 = rootView.findViewById(R.id.button0);
+        button1 = rootView.findViewById(R.id.button1);
+        button2 = rootView.findViewById(R.id.button2);
+        button3 = rootView.findViewById(R.id.button3);
+        button4 = rootView.findViewById(R.id.button4);
+        button5 = rootView.findViewById(R.id.button5);
+        button6 = rootView.findViewById(R.id.button6);
+        button7 = rootView.findViewById(R.id.button7);
+        button8 = rootView.findViewById(R.id.button8);
+        button9 = rootView.findViewById(R.id.button9);
+        buttonDecimal = rootView.findViewById(R.id.buttonDecimal);
+        buttonDeleteBack = rootView.findViewById(R.id.buttonDeleteBack);
+        button0.setOnClickListener(this);
+        button1.setOnClickListener(this);
+        button2.setOnClickListener(this);
+        button3.setOnClickListener(this);
+        button4.setOnClickListener(this);
+        button5.setOnClickListener(this);
+        button6.setOnClickListener(this);
+        button7.setOnClickListener(this);
+        button8.setOnClickListener(this);
+        button9.setOnClickListener(this);
+        buttonDecimal.setOnClickListener(this);
+        buttonDeleteBack.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button0:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button0.getText().toString());
                 break;
             case R.id.button1:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button1.getText().toString());
                 break;
             case R.id.button2:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button2.getText().toString());
                 break;
             case R.id.button3:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button3.getText().toString());
                 break;
             case R.id.button4:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button4.getText().toString());
                 break;
             case R.id.button5:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button5.getText().toString());
                 break;
             case R.id.button6:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button6.getText().toString());
                 break;
             case R.id.button7:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button7.getText().toString());
                 break;
             case R.id.button8:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button8.getText().toString());
                 break;
             case R.id.button9:
-                padClicked(v.getTag().toString().substring(0, 1));
+                padClicked(button9.getText().toString());
                 break;
             case R.id.buttonDecimal:
                 padClicked(strDecimal);
@@ -182,6 +237,7 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
     }
 
     public void chargeClicked() {
+        String paymentAddress = AppUtil.getReceivingAddress(getContext());
         if (!AppUtil.getInstance(getActivity()).hasValidReceiver()) {
             SnackCustom.make(getActivity(), getView(), getActivity().getText(R.string.no_valid_receiver), getActivity().getResources().getString(R.string.prompt_ok), new View.OnClickListener() {
                 @Override
@@ -294,6 +350,11 @@ public class PaymentInputFragment extends Fragment implements View.OnClickListen
             amountPayableFiat = 0.0;
             amountPayableBch = 0.0;
             pe.printStackTrace();
+        }
+        if (amountPayableFiat == 0.0) {
+            tvBch.setText("Enter an amount");
+        } else {
+            tvBch.setText(df.format(amountPayableBch) + " BCH");
         }
     }
 

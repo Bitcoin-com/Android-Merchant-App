@@ -24,13 +24,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
 import com.bitcoin.merchant.app.database.PaymentRecord;
 import com.bitcoin.merchant.app.network.ExpectedAmounts;
@@ -42,7 +42,9 @@ import com.bitcoin.merchant.app.network.websocket.TxWebSocketHandler;
 import com.bitcoin.merchant.app.network.websocket.WebSocketListener;
 import com.bitcoin.merchant.app.network.websocket.impl.bitcoincom.BitcoinComSocketHandler;
 import com.bitcoin.merchant.app.network.websocket.impl.blockchaininfo.BlockchainInfoSocketSocketHandler;
+import com.bitcoin.merchant.app.network.websocket.impl.paybitcoincom.PayBitcoinComSocketHandler;
 import com.bitcoin.merchant.app.screens.AboutActivity;
+import com.bitcoin.merchant.app.screens.NonSwipeViewPager;
 import com.bitcoin.merchant.app.screens.PaymentProcessor;
 import com.bitcoin.merchant.app.screens.PaymentReceived;
 import com.bitcoin.merchant.app.screens.PinActivity;
@@ -70,6 +72,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
     public static final String ACTION_QUERY_MISSING_TX_THEN_ALL_UTXO = APP_PACKAGE + "MainActivity.ACTION_QUERY_MISSING_TX_THEN_ALL_UTXO";
     public static final String ACTION_QUERY_ALL_UXTO = APP_PACKAGE + "MainActivity.ACTION_QUERY_ALL_UXTO";
     public static final String ACTION_QUERY_ALL_UXTO_FINISHED = APP_PACKAGE + "MainActivity.ACTION_QUERY_ALL_UXTO_FINISHED";
+    public static final String ACTION_START_LISTENING_FOR_BIP70 = APP_PACKAGE + "MainActivity.ACTION_START_LISTENING_FOR_BIP70";
+    public static final String ACTION_STOP_LISTENING_FOR_BIP70 = APP_PACKAGE + "MainActivity.ACTION_STOP_LISTENING_FOR_BIP70";
+    public static final String ACTION_INVOICE_PAYMENT_EXPIRED = APP_PACKAGE + "MainActivity.INVOICE_PAYMENT_EXPIRED";
     public static int SETTINGS_ACTIVITY = 1;
     private static int PIN_ACTIVITY = 2;
     private static int RESET_PIN_ACTIVITY = 3;
@@ -77,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
     DrawerLayout mDrawerLayout;
     private TxWebSocketHandler bitcoinDotComSocket = null;
     private TxWebSocketHandler blockchainDotInfoSocket = null;
+    private PayBitcoinComSocketHandler paybitcoinDotComSocket = null;
     protected BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, final Intent intent) {
@@ -95,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
                 updateExistingTx(new PaymentReceived(intent));
             }
             if (ACTION_INTENT_SHOW_HISTORY.equals(intent.getAction())) {
-                showTxHistoryPage();
+                showPage(TabsPagerAdapter.TAB_TX_HISTORY);
             }
             if (ACTION_QUERY_MISSING_TX_IN_MEMPOOL.equals(intent.getAction())) {
                 new QueryUtxoTask(MainActivity.this, QueryUtxoType.UNCONFIRMED).execute();
@@ -105,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
             }
             if (ACTION_QUERY_ALL_UXTO.equals(intent.getAction())) {
                 new QueryUtxoTask(MainActivity.this, QueryUtxoType.ALL).execute();
+            }
+            if (ACTION_START_LISTENING_FOR_BIP70.equals(intent.getAction())) {
+                String invoiceId = intent.getStringExtra("invoice_id");
+                System.out.println("Now listening for BIP70 invoice: " + invoiceId);
+                paybitcoinDotComSocket.startListeningForInvoice(invoiceId);
+            }
+            if (ACTION_STOP_LISTENING_FOR_BIP70.equals(intent.getAction())) {
+                paybitcoinDotComSocket.disconnect();
             }
         }
     };
@@ -143,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         }
         addTxToHistory(tx);
         if (paymentExpected) {
-            showTxHistoryPage();
             soundAlert();
         }
     }
@@ -187,13 +200,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         }
     }
 
-    private void showTxHistoryPage() {
+    private void showPage(int page) {
         if (viewPager != null) {
-            viewPager.setCurrentItem(TabsPagerAdapter.TAB_TX_HISTORY);
+            viewPager.setCurrentItem(page);
         }
     }
 
-    private ViewPager viewPager;
+    private NonSwipeViewPager viewPager;
 
     public void soundAlert() {
         AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -235,10 +248,36 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         } else {
             new QueryUtxoTask(MainActivity.this, QueryUtxoType.UNCONFIRMED).execute();
         }
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View view, float v) {
+                if (v > 0) {
+                    AppUtil.setStatusBarColor(MainActivity.this, R.color.bitcoindotcom_green);
+                } else {
+                    AppUtil.setStatusBarColor(MainActivity.this, R.color.gray);
+                }
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View view) {
+                AppUtil.setStatusBarColor(MainActivity.this, R.color.bitcoindotcom_green);
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View view) {
+                AppUtil.setStatusBarColor(MainActivity.this, R.color.gray);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int i) {
+            }
+        });
+        System.out.println("Stored address: " + AppUtil.getReceivingAddress(this));
     }
 
     /**
      * Only used for debugging purposes
+     *
      * @param tx
      */
     private void resetPaymentTime(String tx) {
@@ -260,6 +299,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         filter.addAction(ACTION_INTENT_UPDATE_TX);
         filter.addAction(ACTION_INTENT_SHOW_HISTORY);
         filter.addAction(ACTION_QUERY_MISSING_TX_IN_MEMPOOL);
+        filter.addAction(ACTION_START_LISTENING_FOR_BIP70);
+        filter.addAction(ACTION_STOP_LISTENING_FOR_BIP70);
         filter.addAction(ACTION_QUERY_MISSING_TX_THEN_ALL_UTXO);
         filter.addAction(ACTION_QUERY_ALL_UXTO);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(receiver, filter);
@@ -272,12 +313,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         blockchainDotInfoSocket = new BlockchainInfoSocketSocketHandler();
         blockchainDotInfoSocket.setListener(this);
         blockchainDotInfoSocket.start();
+        paybitcoinDotComSocket = new PayBitcoinComSocketHandler();
+        paybitcoinDotComSocket.setListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setMerchantName();
+        showPage(TabsPagerAdapter.TAB_INPUT_AMOUNT);
     }
 
     @Override
@@ -340,7 +384,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.v(TAG, "requestCode:" + requestCode + ", resultCode:" + resultCode + ", Intent:" + data);
         if (requestCode == SETTINGS_ACTIVITY && resultCode == RESULT_OK) {
-            ;
         } else if (requestCode == PIN_ACTIVITY && resultCode == RESULT_OK) {
             showSettings();
         } else if (requestCode == RESET_PIN_ACTIVITY && resultCode == RESULT_OK) {
@@ -361,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         View view = this.getCurrentFocus();
         if (view instanceof EditText) {
             View w = this.getCurrentFocus();
-            int scrcoords[] = new int[2];
+            int[] scrcoords = new int[2];
             w.getLocationOnScreen(scrcoords);
             float x = event.getRawX() + w.getLeft() - scrcoords[0];
             float y = event.getRawY() + w.getTop() - scrcoords[1];
@@ -406,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         TextView tvName = headerView.findViewById(R.id.drawer_title);
         String drawerTitle = PrefsUtil.getInstance(this).getValue(PrefsUtil.MERCHANT_KEY_MERCHANT_NAME, getResources().getString(R.string.app_name));
         tvName.setText(drawerTitle);
-        toolbar.setTitle(drawerTitle);
+        toolbar.setTitle("");
     }
 
     @Override
@@ -416,9 +459,22 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public void onIncomingBIP70Payment(PaymentReceived p) {
+        Intent intent = new Intent(MainActivity.ACTION_INTENT_RECORD_TX);
+        p.toIntent(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    public void cancelBIP70Payment() {
+        Intent intent = new Intent(MainActivity.ACTION_INVOICE_PAYMENT_EXPIRED);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
     public void setToolbar() {
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_black_24dp));
         setSupportActionBar(toolbar);
     }
 
@@ -434,6 +490,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
     public void onBackPressed() {
         if (isNavDrawerOpen()) {
             closeNavDrawer();
+        }
+        if (viewPager.getCurrentItem() == TabsPagerAdapter.TAB_TX_HISTORY) {
+            showPage(TabsPagerAdapter.TAB_INPUT_AMOUNT);
         } else {
             super.onBackPressed();
         }
@@ -459,6 +518,12 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Create
             @Override
             public void run() {
                 switch (menuItem.getItemId()) {
+                    case R.id.action_checkout:
+                        showPage(TabsPagerAdapter.TAB_INPUT_AMOUNT);
+                        break;
+                    case R.id.action_transactions:
+                        showPage(TabsPagerAdapter.TAB_TX_HISTORY);
+                        break;
                     case R.id.action_settings:
                         goToSettings(false);
                         break;

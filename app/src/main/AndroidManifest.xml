@@ -69,12 +69,12 @@
         <activity
             android:name="com.bitcoin.merchant.app.screens.AboutActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Dialog"></activity>
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name="com.bitcoin.merchant.app.screens.PaymentRequestActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Dialog"></activity>
+            android:screenOrientation="portrait"></activity>
 
         <receiver android:name="com.bitcoin.merchant.app.network.NetworkStateReceiver">
             <intent-filter>

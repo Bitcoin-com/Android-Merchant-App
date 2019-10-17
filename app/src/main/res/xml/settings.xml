@@ -2,24 +2,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
-        android:title="@string/options_business_name"
         android:key="name"
-        />
+        android:title="@string/options_business_name" />
+    <Preference
+        android:key="address"
+        android:title="@string/options_payment_address" />
     <Preference
         android:title="@string/options_local_currency"
         android:key="fiat"
         />
     <Preference
-        android:title="@string/options_payment_address"
-        android:key="address"
-        />
+        android:key="pin"
+        android:title="@string/options_pin_code" />
     <Preference
         android:title="@string/wallet_download"
         android:summary="https://wallet.bitcoin.com"
         android:key="download_wallet"
-        />
-    <Preference
-        android:title="@string/options_pin_code"
-        android:key="pin"
         />
 </PreferenceScreen>

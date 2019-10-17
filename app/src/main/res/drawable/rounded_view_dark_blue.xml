@@ -5,8 +5,8 @@
         android:width="1dp"
         />
 
-    <solid android:color="@color/blockchain_darkest_green" />
-    <stroke android:width="1dp" android:color="@color/blockchain_darkest_green" />
+    <solid android:color="@color/bitcoindotcom_darkest_green" />
+    <stroke android:width="1dp" android:color="@color/bitcoindotcom_darkest_green" />
 
     <padding
         android:left="1dp"

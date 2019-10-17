@@ -3,8 +3,9 @@ package com.bitcoin.merchant.app.network;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bitcoin.merchant.app.MainActivity;
 import com.bitcoin.merchant.app.database.DBControllerV3;

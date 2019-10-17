@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    android:theme="@style/ThemeOverlay.AppCompat.Light"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:minHeight="?attr/actionBarSize"
+    android:theme="@style/AppTheme"
     app:navigationContentDescription="@string/abc_action_bar_up_description"
-    android:background="?attr/colorPrimary"
     app:navigationIcon="?attr/homeAsUpIndicator"
-    app:title="@string/options_receiving_payments"
-    />
+    app:title="@string/options_receiving_payments" />

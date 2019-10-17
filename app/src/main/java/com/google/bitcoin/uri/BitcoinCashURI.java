@@ -203,8 +203,4 @@ public class BitcoinCashURI {
         }
         return address;
     }
-
-    public static String toCashAddress(String legacy) {
-        return AddressConverter.toCashAddress(legacy);
-    }
 }

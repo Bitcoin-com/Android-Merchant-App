@@ -5,11 +5,10 @@ import android.util.Log;
 
 import com.bitcoin.merchant.app.currency.CountryCurrency;
 import com.bitcoin.merchant.app.currency.CurrencyExchange;
+import com.bitcoin.merchant.app.screens.PaymentInputFragment;
 
 import java.text.NumberFormat;
 import java.util.Currency;
-
-import com.bitcoin.merchant.app.screens.PaymentInputFragment;
 
 public class AmountUtil {
     public static final String TAG = "AmountUtil";

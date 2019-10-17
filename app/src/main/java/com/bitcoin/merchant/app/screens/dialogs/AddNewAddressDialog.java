@@ -8,8 +8,6 @@ import android.widget.TextView;
 import com.bitcoin.merchant.app.R;
 import com.bitcoin.merchant.app.screens.SettingsActivity;
 import com.bitcoin.merchant.app.util.AppUtil;
-import com.bitcoin.merchant.app.util.ToastCustom;
-import com.google.bitcoin.uri.BitcoinCashURI;
 
 public class AddNewAddressDialog {
     private final SettingsActivity ctx;
@@ -49,7 +47,7 @@ public class AddNewAddressDialog {
                 .setCancelable(false)
                 .setPositiveButton(R.string.prompt_ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        validateThenSetNewAddress(etReceiver.getText().toString().trim());
+                        ctx.validateThenSetNewAddress(etReceiver.getText().toString().trim());
                         dialog.dismiss();
                     }
                 })
@@ -61,22 +59,13 @@ public class AddNewAddressDialog {
                 .show();
     }
 
-    private void validateThenSetNewAddress(String address) {
-        address = BitcoinCashURI.toLegacyAddress(address);
-        if (AppUtil.isValidAddress(address)) {
-            ctx.setNewAddress(address);
-        } else {
-            ToastCustom.makeText(ctx, ctx.getString(R.string.unrecognized_xpub), ToastCustom.LENGTH_SHORT, ToastCustom.TYPE_ERROR);
-        }
-    }
-
     private void enterAddressUsingInputField() {
         if (ENTERING_ADDRESS_BYPASSED) {
             ctx.setNewAddress("1MxRuANd5CmHWcveTwQaAJ36sStEQ5QM5k");
         } else {
             final EditText etReceiver = new EditText(ctx);
             etReceiver.setSingleLine(true);
-            etReceiver.setText(AppUtil.getReceivingAddress(ctx));
+            etReceiver.setText(AppUtil.convertToBitcoinCash(AppUtil.getReceivingAddress(ctx)));
             showDialogToEnterAddress(etReceiver);
         }
     }

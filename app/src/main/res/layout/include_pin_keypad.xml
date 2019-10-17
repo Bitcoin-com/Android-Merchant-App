@@ -1,126 +1,57 @@
-<TableLayout
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/numericPad"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:background="@color/blockchain_navigation_bar"
+    android:layout_marginStart="60dp"
+    android:layout_marginTop="32dp"
+    android:layout_marginEnd="60dp"
+    android:layout_marginBottom="32dp"
+    android:background="@drawable/button_rounded"
+    android:elevation="8dp"
     android:gravity="center_horizontal"
     android:shrinkColumns="*"
-    android:stretchColumns="*"
-    >
+    android:stretchColumns="*">
 
     <TableRow
         android:id="@+id/tableRow1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
+        android:layout_weight="1.0">
 
-        <LinearLayout
+        <Button
             android:id="@+id/button1"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:padding="@dimen/pinentry_padding"
-            android:tag="1">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="1"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="1"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text=" "
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button2"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="2">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="2"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="2"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="ABC"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button3"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="3">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="3"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="DEF"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="3"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
     </TableRow>
 
@@ -128,324 +59,119 @@
         android:id="@+id/tableRow2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
+        android:layout_weight="1.0">
 
-        <LinearLayout
+        <Button
             android:id="@+id/button4"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:padding="@dimen/pinentry_padding"
-            android:tag="4">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="4"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="4"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="GHI"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button5"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="5">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="5"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="5"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="JKL"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button6"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="6">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="6"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="6"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="MNO"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
     </TableRow>
 
     <TableRow
         android:id="@+id/tableRow3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
+        android:layout_weight="1.0">
 
-        <LinearLayout
+        <Button
             android:id="@+id/button7"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:padding="@dimen/pinentry_padding"
-            android:tag="7">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="7"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="7"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="PQRS"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button8"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="8">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="8"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="8"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="TUV"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button9"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:tag="9">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="9"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="9"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="WXYZ"
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
     </TableRow>
 
     <TableRow
         android:id="@+id/tableRow4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
+        android:layout_weight="1.0">
 
-        <LinearLayout
+        <Button
             android:id="@+id/buttonDecimal"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/pinentry_padding">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text=" "
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text=" "
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text=" "
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/button0"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="padClicked"
-            android:orientation="vertical"
-            android:padding="9dp"
-            android:tag="0">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin"
+            android:text="0"
+            android:textSize="@dimen/pinentry_num_text_size"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="0"
-                android:textColor="@color/green_tropical_rain_forest"
-                android:textSize="@dimen/pinentry_num_text_size"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:text=" "
-                android:textColor="@color/blockchain_grey"
-                android:textSize="@dimen/pinentry_alpha_text_size"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
             android:id="@+id/buttonDeleteBack"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/selector_pearl_white"
-            android:gravity="center"
-            android:onClick="cancelClicked"
-            android:orientation="vertical"
-            android:padding="9dp">
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_button_pin_back" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:src="@drawable/ic_backspace_grey600_36dp"
-                >
-            </ImageView>
-
-        </LinearLayout>
     </TableRow>
 </TableLayout>

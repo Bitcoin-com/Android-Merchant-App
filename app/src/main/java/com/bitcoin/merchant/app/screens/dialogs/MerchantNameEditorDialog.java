@@ -3,9 +3,9 @@ package com.bitcoin.merchant.app.screens.dialogs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.preference.Preference;
 import android.text.InputFilter;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bitcoin.merchant.app.R;
 import com.bitcoin.merchant.app.util.PrefsUtil;
@@ -17,7 +17,7 @@ public class MerchantNameEditorDialog {
         this.ctx = ctx;
     }
 
-    public boolean show(final Preference namePref) {
+    public boolean show(final TextView namePref) {
         final EditText etName = new EditText(ctx);
         etName.setSingleLine(true);
         int maxLength = 70;
@@ -34,7 +34,7 @@ public class MerchantNameEditorDialog {
                         String name = etName.getText().toString();
                         if (name.length() > 0) {
                             PrefsUtil.getInstance(ctx).setValue(PrefsUtil.MERCHANT_KEY_MERCHANT_NAME, name);
-                            namePref.setSummary(name);
+                            namePref.setText(name);
                         }
                         dialog.dismiss();
                     }

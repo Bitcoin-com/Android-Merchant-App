@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:minWidth="420dp"
+    android:orientation="vertical"
+    android:animateLayoutChanges="true">
+
+    <LinearLayout
+        android:id="@+id/layout_waiting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="35dp">
+
+        <TextView
+            android:id="@+id/tv_merchant_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="4dp"
+            android:text=""
+            android:textColor="@color/bitcoindotcom_darker_green"
+            android:textSize="22sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_fiat_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="$99.50"
+            android:textColor="@color/primary_text_default_material_light"
+            android:textSize="42sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:text="@string/waiting_for_payment"
+            android:textColor="@color/bitcoindotcom_green"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="25dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="25dp"
+            android:stateListAnimator="@null">
+
+            <ImageView
+                android:id="@+id/qr"
+                android:layout_width="@dimen/qr_code_size"
+                android:layout_height="@dimen/qr_code_size"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/button_rounded"
+                android:elevation="8dp"
+                android:padding="12dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/progressLayout"
+                android:layout_width="@dimen/qr_code_size"
+                android:layout_height="@dimen/qr_code_size"
+                android:background="@drawable/button_rounded"
+                android:elevation="8dp"
+                android:gravity="center"
+                android:padding="12dp">
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/bitcoindotcom_green" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text=""
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_btc_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:gravity="center_horizontal"
+            android:padding="4dp"
+            android:text="0.123 456 78 BCH"
+            android:textColor="@color/primary_text_default_material_light"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp" />
+
+        <Button
+            android:id="@+id/iv_cancel"
+            android:layout_width="330dp"
+            android:layout_height="55dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/button_rounded_green"
+            android:text="@string/cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="35dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_complete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bitcoindotcom_green"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="35dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/round_view_green"
+            android:padding="20dp"
+            android:src="@drawable/ic_done_white_48dp"
+            android:tint="@color/bitcoindotcom_green" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:text="@string/payment_received"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp" />
+
+        <Button
+            android:id="@+id/iv_done"
+            android:layout_width="330dp"
+            android:layout_height="55dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/button_rounded"
+            android:text="@string/done"
+            android:textAllCaps="false"
+            android:textColor="@color/bitcoindotcom_green"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="35dp" />
+
+    </LinearLayout>
+</LinearLayout>

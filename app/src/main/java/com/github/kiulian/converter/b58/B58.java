@@ -20,8 +20,8 @@ package com.github.kiulian.converter.b58;
  * -----------------------LICENSE_END-----------------------
  */
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class B58 {
@@ -65,11 +65,7 @@ public class B58 {
     }
 
     public static String encodeToStringChecked(byte[] input, byte[] version) {
-        try {
-            return new String(encodeToBytesChecked(input, version), "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);  // Cannot happen.
-        }
+        return new String(encodeToBytesChecked(input, version), StandardCharsets.US_ASCII);
     }
 
     public static byte[] encodeToBytesChecked(byte[] input, int version) {
@@ -89,11 +85,7 @@ public class B58 {
 
     public static String encodeToString(byte[] input) {
         byte[] output = encodeToBytes(input);
-        try {
-            return new String(output, "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);  // Cannot happen.
-        }
+        return new String(output, StandardCharsets.US_ASCII);
     }
 
     public static byte[] encodeToBytes(byte[] input) {
@@ -203,8 +195,8 @@ public class B58 {
         return new Decoded(foundVersion, bytes);
     }
 
-    private static byte[] decodeAndCheck(String input) {
-        byte buffer[] = decode(input);
+    public static byte[] decodeAndCheck(String input) {
+        byte[] buffer = decode(input);
         if (buffer.length < 4)
             throw new EncodingFormatException("Input too short");
         byte[] toHash = copyOfRange(buffer, 0, buffer.length - 4);

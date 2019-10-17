@@ -4,7 +4,6 @@
 
     <gradient
         android:angle="90"
-        android:endColor="@color/dropshadow_grey"
-        android:startColor="@color/blockchain_off_white" />
+        android:endColor="@color/dropshadow_grey" />
 
 </shape>

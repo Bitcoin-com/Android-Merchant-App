@@ -8,8 +8,16 @@
             android:icon="@drawable/ic_person_white_24dp"
             android:title="Profile"/>
         <item
+            android:id="@+id/action_checkout"
+            android:icon="@drawable/register_icon"
+            android:title="Cash Register"/>
+        <item
+            android:id="@+id/action_transactions"
+            android:icon="@drawable/transactions_icon"
+            android:title="Transactions"/>
+        <item
             android:id="@+id/action_settings"
-            android:icon="@drawable/ic_settings_white_24dp"
+            android:icon="@drawable/settings_icon"
             android:title="Settings"/>
     </group>
 
@@ -23,7 +31,7 @@
         <item
             android:id="@+id/action_about"
             android:icon="@drawable/ic_notification"
-            android:iconTint="@color/blockchain_green"
+            android:iconTint="@color/bitcoindotcom_green"
             android:title="About"/>
     </group>
 

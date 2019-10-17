@@ -9,7 +9,6 @@
         android:layout_height="0dp"
         android:layout_centerInParent="true"
         android:layout_weight="1"
-        android:background="@color/blockchain_dark_green"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
@@ -21,40 +20,69 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:paddingTop="24dp">
+
+                <TextView
+                    android:id="@+id/pinBox0"
+                    android:layout_width="48dip"
+                    android:layout_height="48dip"
+                    android:layout_margin="10dip" />
+
+                <TextView
+                    android:id="@+id/pinBox1"
+                    android:layout_width="48dip"
+                    android:layout_height="48dip"
+                    android:layout_margin="10dip" />
+
+                <TextView
+                    android:id="@+id/pinBox2"
+                    android:layout_width="48dip"
+                    android:layout_height="48dip"
+                    android:layout_margin="10dip" />
+
+                <TextView
+                    android:id="@+id/pinBox3"
+                    android:layout_width="48dip"
+                    android:layout_height="48dip"
+                    android:layout_margin="10dip" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
                 android:orientation="horizontal"
-                android:paddingTop="24dp"
                 android:paddingBottom="5dp">
 
                 <TextView
-                    android:id="@+id/pinBox0"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="48dip"
+                    android:layout_height="2.5dip"
                     android:layout_margin="10dip"
-                    android:background="@drawable/rounded_view_blue_white_border" />
+                    android:background="@color/gray" />
 
                 <TextView
-                    android:id="@+id/pinBox1"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="48dip"
+                    android:layout_height="2.5dip"
                     android:layout_margin="10dip"
-                    android:background="@drawable/rounded_view_blue_white_border" />
+                    android:background="@color/gray" />
 
                 <TextView
-                    android:id="@+id/pinBox2"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="48dip"
+                    android:layout_height="2.5dip"
                     android:layout_margin="10dip"
-                    android:background="@drawable/rounded_view_blue_white_border" />
+                    android:background="@color/gray" />
 
                 <TextView
-                    android:id="@+id/pinBox3"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="48dip"
+                    android:layout_height="2.5dip"
                     android:layout_margin="10dip"
-                    android:background="@drawable/rounded_view_blue_white_border" />
+                    android:background="@color/gray" />
 
             </LinearLayout>
 
@@ -66,18 +94,9 @@
                 android:gravity="center"
                 android:padding="10dip"
                 android:text="@string/enter_pin"
-                android:textColor="@color/white"
-                android:textSize="22sp" />
-
-            <TextView
-                android:id="@+id/enter_pin_explanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="10dip"
-                android:text="@string/please_create_pin"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textColor="@color/gray"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </LinearLayout>

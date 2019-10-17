@@ -1,8 +1,8 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/blockchain_darker_green</item>
-        <item name="colorPrimaryDark">@color/blockchain_darkest_green</item>
-        <item name="colorAccent">@color/blockchain_darker_green</item>
+        <item name="colorPrimary">@color/bitcoindotcom_green</item>
+        <item name="colorPrimaryDark">@color/bitcoindotcom_darkest_green</item>
+        <item name="colorAccent">@color/bitcoindotcom_green</item>
 
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
@@ -10,20 +10,20 @@
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/blockchain_darkest_green</item>
+        <item name="android:statusBarColor">@color/gray</item>
 
-        <item name="android:windowBackground">@color/blockchain_pearl_white</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="android:windowContentTransitions">true</item>
 
         <item name="android:toolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeBackground">@color/blockchain_darker_green</item>
+        <item name="actionModeBackground">@color/bitcoindotcom_darker_green</item>
 
-        <item name="colorControlActivated">@color/blockchain_light_green</item>
-        <item name="colorControlHighlight">@color/blockchain_light_green</item>
+        <item name="colorControlActivated">@color/bitcoindotcom_light_green</item>
+        <item name="colorControlHighlight">@color/bitcoindotcom_light_green</item>
     </style>
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
-        <item name="color">@android:color/white</item>
+        <item name="color">@android:color/black</item>
     </style>
 </resources>

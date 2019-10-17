@@ -14,9 +14,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
@@ -25,11 +22,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bitcoin.merchant.app.MainActivity;
 import com.bitcoin.merchant.app.R;
@@ -50,6 +53,7 @@ public class TransactionsHistoryFragment extends Fragment {
     private static final String TAG = "TransactionsHistory";
     private TransactionAdapter adapter = null;
     private ListView listView = null;
+    private LinearLayout noTxHistoryLv = null;
     private SwipeRefreshLayout swipeLayout = null;
     private Activity thisActivity = null;
     private volatile boolean ready;
@@ -76,9 +80,9 @@ public class TransactionsHistoryFragment extends Fragment {
             }
         });
         swipeLayout.setColorSchemeResources(
-                R.color.blockchain_darker_green,
-                R.color.blockchain_green,
-                R.color.blockchain_darkest_green);
+                R.color.bitcoindotcom_darker_green,
+                R.color.bitcoindotcom_green,
+                R.color.bitcoindotcom_darkest_green);
         thisActivity = getActivity();
         IntentFilter filter = new IntentFilter();
         filter.addAction(MainActivity.ACTION_QUERY_ALL_UXTO_FINISHED);
@@ -96,6 +100,7 @@ public class TransactionsHistoryFragment extends Fragment {
     private void initListView(View rootView) {
         adapter = new TransactionAdapter();
         listView = rootView.findViewById(R.id.txList);
+        noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -103,6 +108,25 @@ public class TransactionsHistoryFragment extends Fragment {
                 showTransactionMenu(id);
             }
         });
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (listView.getChildAt(0) != null) {
+                    swipeLayout.setEnabled(listView.getFirstVisiblePosition() == 0 && listView.getChildAt(0).getTop() == 0);
+                }
+            }
+        });
+        if (adapter.getCount() == 0) {
+            listView.setVisibility(View.GONE);
+            noTxHistoryLv.setVisibility(View.VISIBLE);
+        } else {
+            listView.setVisibility(View.VISIBLE);
+            noTxHistoryLv.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -175,6 +199,8 @@ public class TransactionsHistoryFragment extends Fragment {
             if (!isSafe()) {
                 return;
             }
+            listView.setVisibility(View.VISIBLE);
+            noTxHistoryLv.setVisibility(View.GONE);
             thisActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -195,6 +221,8 @@ public class TransactionsHistoryFragment extends Fragment {
             if (!isSafe()) {
                 return;
             }
+            listView.setVisibility(View.VISIBLE);
+            noTxHistoryLv.setVisibility(View.GONE);
             thisActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -243,10 +271,18 @@ public class TransactionsHistoryFragment extends Fragment {
             if (ready) {
                 if (result != null && adapter != null) {
                     adapter.reset(result);
+                    if (result.size() != 0) {
+                        listView.setVisibility(View.VISIBLE);
+                        noTxHistoryLv.setVisibility(View.GONE);
+                    }
                 }
                 if (queryServer) {
                     findAllPotentialMissingTx();
                 } else {
+                    if (result != null && result.size() != 0) {
+                        listView.setVisibility(View.VISIBLE);
+                        noTxHistoryLv.setVisibility(View.GONE);
+                    }
                     swipeLayout.setRefreshing(false);
                 }
             }

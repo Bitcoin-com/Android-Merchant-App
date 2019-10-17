@@ -2,10 +2,10 @@ package com.bitcoin.merchant.app.util;
 
 import android.content.Context;
 import android.graphics.Color;
-import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 
 import com.bitcoin.merchant.app.R;
+import com.google.android.material.snackbar.Snackbar;
 
 public class SnackCustom {
     public static void make(final Context context, final View view, final CharSequence text, String action, View.OnClickListener listener) {

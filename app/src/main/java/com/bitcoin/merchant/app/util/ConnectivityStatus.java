@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 
 public class ConnectivityStatus {
     ConnectivityStatus() {
-        ;
     }
 
     public static boolean hasConnectivity(Context ctx) {

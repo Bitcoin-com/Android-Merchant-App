@@ -84,10 +84,20 @@ public abstract class TxWebSocketHandlerImpl implements TxWebSocketHandler {
 
         @Override
         public void run() {
-            try {
-                handler = new ConnectionHandler();
-            } catch (Exception e) {
-                Log.e(TAG, "Connect", e);
+            long doubleBackOff = 1000;
+            while (true) {
+                try {
+                    handler = new ConnectionHandler();
+                    break;
+                } catch (Exception e) {
+                    Log.e(TAG, "Connect", e);
+                    try {
+                        Thread.sleep(doubleBackOff);
+                    } catch (InterruptedException ex) {
+                        // fail silently
+                    }
+                    doubleBackOff *= 2;
+                }
             }
         }
     }
