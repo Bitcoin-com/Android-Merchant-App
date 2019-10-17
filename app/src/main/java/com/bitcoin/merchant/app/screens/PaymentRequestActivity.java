@@ -73,9 +73,6 @@ public class PaymentRequestActivity extends Activity {
                 }
                 onPaymentReceived(p);
             }
-            if (MainActivity.ACTION_INVOICE_PAYMENT_EXPIRED.equals(intent.getAction())) {
-                cancelPayment();
-            }
         }
     };
     private String qrCodeUri;
@@ -109,7 +106,6 @@ public class PaymentRequestActivity extends Activity {
         //Register receiver (Listen for incoming tx)
         IntentFilter filter = new IntentFilter();
         filter.addAction(MainActivity.ACTION_INTENT_EXPECTED_PAYMENT_RECEIVED);
-        filter.addAction(MainActivity.ACTION_INVOICE_PAYMENT_EXPIRED);
         LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         broadcastManager.registerReceiver(receiver, filter);
         double amountFiat = this.getIntent().getDoubleExtra(PaymentInputFragment.AMOUNT_PAYABLE_FIAT, 0.0);
@@ -165,7 +161,7 @@ public class PaymentRequestActivity extends Activity {
         Log.d(TAG, "Canceling payment...");
         onBackPressed();
         ExpectedPayments.getInstance().removePayment(receivingAddress);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(MainActivity.ACTION_STOP_LISTENING_FOR_BIP70));
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(MainActivity.ACTION_QUERY_MISSING_TX_THEN_ALL_UTXO));
     }
 
     private void copyQrCodeToClipboard() {
