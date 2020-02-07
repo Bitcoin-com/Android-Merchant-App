@@ -15,7 +15,7 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.util.*
 
-class WalletUtil(private val xPub: String, private val app: CashRegisterApplication) {
+class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String, private val app: CashRegisterApplication) {
     private val accountKey: DeterministicKey
     // For performance reasons, we cache all used addresses (reported in May 2019 on Lenovo Tab E8)
     private val addressBank: AddressBank
@@ -33,15 +33,29 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
         Log.d(TAG, "Saving new xpub index $newIndex")
     }
 
+    /**
+     * Gets the next address without checking balance on the network rest.bitcoin.com
+     * to reduce delays & risks of failure when generating QR code
+     * TODO improve by doing an online lookup of max 3 seconds using coroutine
+     */
     fun generateAddressFromXPub(): String {
-        return loopThroughXpubChildren()
+        val address = getAddressFromXpubKey(xpubIndex)
+        xpubIndex++
+        Log.d(TAG, "Getting next xpub index " + xpubIndex)
+        saveWallet(xpubIndex)
+        return address
     }
 
     fun syncXpub(): Boolean {
-        loopThroughXpubChildren()
-        return true
+        return try {
+            loopThroughXpubChildren()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
+    @Throws(Exception::class)
     private fun loopThroughXpubChildren(): String {
         var potentialAddress = getAddressFromXpubKey(xpubIndex)
         while (true) {
@@ -67,13 +81,12 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
         return potentialAddress
     }
 
+    @Throws(Exception::class)
     private fun doesAddressHaveHistory(address: String): Boolean {
         var doubleBackOff: Long = 1000
-        val maxRetry = 9
-        for (i in 0 until maxRetry) {
+        while (true) {
             doubleBackOff *= try {
-                val out = Scanner(URL("https://rest.bitcoin.com/v2/address/details/$address").openStream(), "UTF-8").useDelimiter("\\A").next()
-                val json = JSONObject(out)
+                val json = JSONObject(URL(urlRestBitcoinCom + "/address/details/$address").readText())
                 return json.getJSONArray("transactions").length() > 0
             } catch (e: Exception) {
                 Log.e(TAG, "doesAddressHaveHistory", e)
@@ -83,11 +96,13 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
                 }
                 2
             }
+            if (doubleBackOff > 32_000)
+                throw Exception()
         }
-        return false
     }
 
-    private fun getAddressFromXpubKey(index: Int): String { //This takes the accountKey from earlier, on the receive chain, and generates an address. For example, m/44'/145'/0'/0/{index}
+    private fun getAddressFromXpubKey(index: Int): String {
+        // This takes the accountKey from earlier, on the receive chain, and generates an address. For example, m/44'/145'/0'/0/{index}
         val dk = HDKeyDerivation.deriveChildKey(accountKey, ChildNumber(index, false))
         val ecKey = ECKey.fromPublicOnly(dk.pubKey)
         return ecKey.toAddress(MainNetParams.get()).toBase58()

@@ -3,6 +3,8 @@ package com.bitcoin.merchant.app.screens
 import android.annotation.SuppressLint
 import android.content.*
 import android.graphics.Bitmap
+import android.graphics.Color.BLACK
+import android.graphics.Color.WHITE
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
@@ -28,8 +30,8 @@ import com.bitcoin.merchant.app.util.AmountUtil
 import com.bitcoin.merchant.app.util.AppUtil
 import com.bitcoin.merchant.app.util.Settings
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.client.android.Contents
-import com.google.zxing.client.android.encode.QRCodeEncoder
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.common.BitMatrix
 import org.bitcoindotcom.bchprocessor.bip70.Bip70Manager
 import org.bitcoindotcom.bchprocessor.bip70.Bip70PayService
 import org.bitcoindotcom.bchprocessor.bip70.model.Bip70Action
@@ -301,10 +303,29 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
 
     @Throws(Exception::class)
     private fun getQrCodeBitmap(url: String): Bitmap? {
-        val qrCodeDimension = 260
         Log.d(MainActivity.TAG, "paymentUrl:$url")
-        val qrCodeEncoder = QRCodeEncoder(url, null, Contents.Type.TEXT, BarcodeFormat.QR_CODE.toString(), qrCodeDimension)
-        return qrCodeEncoder.encodeAsBitmap()
+        return encodeAsBitmap(url, 260)
+    }
+
+    @Throws(Exception::class)
+    private fun encodeAsBitmap(text: String, width: Int) : Bitmap? {
+        val result: BitMatrix = try {
+            MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, width, null);
+        } catch (e : Exception ) {
+             return null // Unsupported format
+        }
+        val w = result.getWidth();
+        val h = result.getHeight();
+        val pixels = IntArray(w * h);
+        for (y in 0 until h) {
+            val offset = y * w
+            for (x in 0 until w) {
+                pixels[offset + x] = if (result.get(x, y)) BLACK else WHITE
+            }
+        }
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        bitmap.setPixels(pixels, 0, width, 0, 0, w, h);
+        return bitmap;
     }
 
     private fun showQrCodeAndAmountFields(pair: Pair<InvoiceStatus?, Bitmap?>) {

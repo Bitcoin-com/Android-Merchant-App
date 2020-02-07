@@ -164,6 +164,9 @@ class SettingsFragment : ToolbarAwareFragment() {
                     val synced = app.wallet.syncXpub()
                     if (synced) {
                         SnackHelper.show(activity, activity.getString(R.string.synced_xpub))
+                    } else {
+                        val errorMessage = activity.getString(R.string.error) + ": " + activity.getString(R.string.syncing_xpub);
+                        SnackHelper.show(activity, errorMessage, error = true)
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "", e)

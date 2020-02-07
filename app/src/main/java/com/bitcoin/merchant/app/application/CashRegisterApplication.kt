@@ -1,6 +1,7 @@
 package com.bitcoin.merchant.app.application
 
 import android.app.Application
+import com.bitcoin.merchant.app.R
 import com.bitcoin.merchant.app.database.DBControllerV3
 import com.bitcoin.merchant.app.util.ScanQRUtil
 import com.bitcoin.merchant.app.util.Settings
@@ -29,7 +30,7 @@ class CashRegisterApplication : Application() {
         get() {
             val xPub = Settings.getPaymentTarget(this).target
             if (walletUtil == null || !walletUtil!!.isSameXPub(xPub)) {
-                walletUtil = WalletUtil(xPub, this)
+                walletUtil = WalletUtil(getString(R.string.url_rest_bitcoin_com), xPub, this)
             }
             return walletUtil!!
         }

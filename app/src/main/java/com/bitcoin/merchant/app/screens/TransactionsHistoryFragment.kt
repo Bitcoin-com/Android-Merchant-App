@@ -112,8 +112,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         ) { dialog: DialogInterface, which: Int ->
             dialog.dismiss()
             when (which) {
-                0 -> openExplorer("https://explorer.bitcoin.com/bch/tx/$txId")
-                1 -> openExplorer("https://explorer.bitcoin.com/bch/address/$address")
+                0 -> openExplorer(activity.getString(R.string.url_explorer_bitcoin_com) + "/bch/tx/$txId")
+                1 -> openExplorer(activity.getString(R.string.url_explorer_bitcoin_com) + "/bch/address/$address")
                 2 -> copyToClipboard(txId)
                 3 -> copyToClipboard(address)
             }
