@@ -308,24 +308,24 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
     }
 
     @Throws(Exception::class)
-    private fun encodeAsBitmap(text: String, width: Int) : Bitmap? {
+    private fun encodeAsBitmap(text: String, width: Int): Bitmap? {
         val result: BitMatrix = try {
-            MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, width, null);
-        } catch (e : Exception ) {
-             return null // Unsupported format
+            MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, width, null)
+        } catch (e: Exception) {
+            return null // Unsupported format
         }
-        val w = result.getWidth();
-        val h = result.getHeight();
-        val pixels = IntArray(w * h);
+        val w = result.width
+        val h = result.height
+        val pixels = IntArray(w * h)
         for (y in 0 until h) {
             val offset = y * w
             for (x in 0 until w) {
                 pixels[offset + x] = if (result.get(x, y)) BLACK else WHITE
             }
         }
-        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        bitmap.setPixels(pixels, 0, width, 0, 0, w, h);
-        return bitmap;
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        bitmap.setPixels(pixels, 0, width, 0, 0, w, h)
+        return bitmap
     }
 
     private fun showQrCodeAndAmountFields(pair: Pair<InvoiceStatus?, Bitmap?>) {
