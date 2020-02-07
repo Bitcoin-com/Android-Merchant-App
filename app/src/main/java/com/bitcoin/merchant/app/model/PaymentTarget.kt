@@ -29,7 +29,7 @@ data class PaymentTarget(val type: Type, val target: String) {
                     Log.e(TAG, "", e)
                 }
             }
-            return target;
+            return target
         }
 
     enum class Type {

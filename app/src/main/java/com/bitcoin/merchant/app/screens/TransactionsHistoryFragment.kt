@@ -74,7 +74,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         adapter = TransactionAdapter()
         listView = rootView.findViewById(R.id.txList)
         noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv)
-        listView.setAdapter(adapter)
+        listView.adapter = adapter
         listView.setOnItemClickListener { _, _, _, id -> showTransactionMenu(id) }
         listView.setOnScrollListener(object : AbsListView.OnScrollListener {
             override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {}

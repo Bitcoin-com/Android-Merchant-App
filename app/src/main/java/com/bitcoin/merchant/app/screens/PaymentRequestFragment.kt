@@ -84,6 +84,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
             bip70Manager.reconnectIfNecessary()
         }
     }
+
     private fun expirePayment(invoiceStatus: InvoiceStatus) {
         if (markInvoiceAsProcessed(invoiceStatus)) {
             return

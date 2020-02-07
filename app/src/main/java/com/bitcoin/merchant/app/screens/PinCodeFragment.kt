@@ -86,7 +86,7 @@ class PinCodeFragment : ToolbarAwareFragment() {
         if (stored == userEnteredPIN) {
             nav.navigate(R.id.nav_to_settings_screen)
         } else {
-            SnackHelper.show(activity, getString(R.string.pin_code_enter_error), error = true);
+            SnackHelper.show(activity, getString(R.string.pin_code_enter_error), error = true)
             delayAction(Runnable {
                 clearPinBoxes()
                 userEnteredPIN = ""

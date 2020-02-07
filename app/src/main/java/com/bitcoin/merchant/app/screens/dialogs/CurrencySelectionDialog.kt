@@ -21,7 +21,7 @@ class CurrencySelectionDialog(private val settingsController: SettingsFragment) 
     private val ctx = settingsController.activity
     fun show(): Boolean {
         val builder = AlertDialog.Builder(ctx)
-        val currencies: List<CountryCurrencyLocale> = CountryCurrencyLocale.getAll(ctx);
+        val currencies: List<CountryCurrencyLocale> = CountryCurrencyLocale.getAll(ctx)
         val adapter: ListAdapter = ArrayAdapterWithIcon(ctx, currencies)
         builder.setAdapter(adapter) { dialog: DialogInterface, which: Int ->
             save(currencies[which])

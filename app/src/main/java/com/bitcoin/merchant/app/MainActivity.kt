@@ -50,7 +50,7 @@ open class MainActivity : AppCompatActivity() {
             Fabric.with(this, Crashlytics())
         }
         setContentView(R.layout.activity_main)
-        rootView = findViewById(R.id.content_frame);
+        rootView = findViewById(R.id.content_frame)
         setToolbar()
         setNavigationDrawer()
         title = "" // clear "Bitcoin Cash Register" from toolBar when opens on Payment Input screen
@@ -98,7 +98,7 @@ open class MainActivity : AppCompatActivity() {
         val navigationView = findViewById<NavigationView>(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0)
         val tvName = headerView.findViewById<TextView>(R.id.drawer_title)
-        tvName.text = Settings.getMerchantName(this);
+        tvName.text = Settings.getMerchantName(this)
     }
 
     fun setToolbar() {

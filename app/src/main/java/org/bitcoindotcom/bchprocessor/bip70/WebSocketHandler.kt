@@ -23,7 +23,7 @@ abstract class WebSocketHandler {
     @Volatile
     private var handler: ConnectionHandler? = null
 
-    fun start() : WebSocketHandler {
+    fun start(): WebSocketHandler {
         try {
             Log.i(TAG, "start threads:" + Thread.activeCount())
             stop()
@@ -31,7 +31,7 @@ abstract class WebSocketHandler {
         } catch (e: Exception) {
             Log.e(TAG, "start", e)
         }
-        return this;
+        return this
     }
 
     fun setAutoReconnect(autoReconnect: Boolean) {
@@ -174,7 +174,7 @@ abstract class WebSocketHandler {
             mConnection = createWebSocket(webSocketFactory)
                     .recreate()
                     .addListener(this)
-            mConnection.setPingInterval(PING_INTERVAL)
+            mConnection.pingInterval = PING_INTERVAL
             mConnection.connect()
             timeLastAlive = System.currentTimeMillis()
         }

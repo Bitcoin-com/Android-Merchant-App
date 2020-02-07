@@ -45,8 +45,8 @@ class MonetaryUtil private constructor() {
 
     init {
         bchFormat = NumberFormat.getInstance(Locale.getDefault())
-        bchFormat.setMaximumFractionDigits(8)
-        bchFormat.setMinimumFractionDigits(1)
+        bchFormat.maximumFractionDigits = 8
+        bchFormat.minimumFractionDigits = 1
         decimalFormatSymbols = DecimalFormatSymbols()
         bchDecimalFormat.decimalFormatSymbols = decimalFormatSymbols
     }

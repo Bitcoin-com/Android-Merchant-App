@@ -29,7 +29,7 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
     }
 
     private fun saveWallet(newIndex: Int) {
-        Settings.setXPubIndex(app, xPub, newIndex);
+        Settings.setXPubIndex(app, xPub, newIndex)
         Log.d(TAG, "Saving new xpub index $newIndex")
     }
 
@@ -144,7 +144,7 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
     }
 
     init {
-        xpubIndex = Settings.getXPubIndex(app, xPub);
+        xpubIndex = Settings.getXPubIndex(app, xPub)
         val key = createMasterPubKeyFromXPub(xPub)
         //This gets the receive chain from the xpub. If you want to generate change addresses, switch to 1 for the childNumber.
         accountKey = HDKeyDerivation.deriveChildKey(key, ChildNumber(0, false))

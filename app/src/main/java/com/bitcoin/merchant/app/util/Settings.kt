@@ -120,7 +120,7 @@ object Settings {
         fun getValue(name: String, value: String): String {
             // TODO fix deprecation
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            return prefs.getString(name, value ?: "") ?: ""
+            return prefs.getString(name, value) ?: ""
         }
 
         fun setValue(name: String, value: String): Boolean {

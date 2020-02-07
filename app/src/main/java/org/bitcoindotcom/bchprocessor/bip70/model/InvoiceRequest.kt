@@ -1,10 +1,10 @@
 package org.bitcoindotcom.bchprocessor.bip70.model
 
-import org.bitcoindotcom.bchprocessor.bip70.GsonHelper
 import com.google.gson.annotations.SerializedName
+import org.bitcoindotcom.bchprocessor.bip70.GsonHelper
 import java.util.*
 
-data class InvoiceRequest @JvmOverloads constructor (
+data class InvoiceRequest @JvmOverloads constructor(
         @SerializedName("fiatAmount") var amount: String,
         @SerializedName("fiat") var fiat: String,
         @SerializedName("webhook") var webhook: String = "http://127.0.0.1/unused/webhook",

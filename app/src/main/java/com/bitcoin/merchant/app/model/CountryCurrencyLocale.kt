@@ -50,7 +50,7 @@ data class CountryCurrencyLocale(@SerializedName("name") var name: String = "",
                 Log.e(TAG, "Currency", e)
                 // check if currency can be determined from the country code
                 if (countryIso.length >= 2) {
-                    return fromCountry(context, countryIso);
+                    return fromCountry(context, countryIso)
                 }
             }
             return fromCurrency(context, currencyCode ?: DEFAULT_CURRENCY)

@@ -171,7 +171,7 @@ class PaymentInputFragment : ToolbarAwareFragment() {
 
     private fun backspacePressed() {
         val v = tvAmount.text.toString()
-        tvAmount.text = if (v.length > 1) v.substring(0, v.length - 1)  else "0"
+        tvAmount.text = if (v.length > 1) v.substring(0, v.length - 1) else "0"
     }
 
     private fun decimalPressed() {

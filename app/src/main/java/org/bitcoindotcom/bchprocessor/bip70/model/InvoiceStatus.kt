@@ -1,11 +1,11 @@
 package org.bitcoindotcom.bchprocessor.bip70.model
 
-import org.bitcoindotcom.bchprocessor.bip70.GsonHelper.gson
 import com.google.gson.annotations.SerializedName
+import org.bitcoindotcom.bchprocessor.bip70.GsonHelper.gson
 import java.util.*
 import kotlin.collections.ArrayList
 
-data class InvoiceStatus @JvmOverloads constructor (
+data class InvoiceStatus @JvmOverloads constructor(
         @SerializedName("paymentUrl") var paymentUrl: String = "",
         @SerializedName("paymentId") var paymentId: String = "",
         @SerializedName("paymentAsset") var paymentAsset: String? = "",
@@ -23,7 +23,7 @@ data class InvoiceStatus @JvmOverloads constructor (
         @SerializedName("outputs") var outputs: List<InvoiceStatusOutput> = ArrayList(0)) {
 
     val isInitialized: Boolean
-        get() = paymentUrl.isNotEmpty() && paymentId.isNotEmpty() && fiatTotal != 0.0 && outputs.isNotEmpty();
+        get() = paymentUrl.isNotEmpty() && paymentId.isNotEmpty() && fiatTotal != 0.0 && outputs.isNotEmpty()
     val firstAddress: String?
         get() = if (outputs.isNotEmpty()) outputs[0].address else null
 

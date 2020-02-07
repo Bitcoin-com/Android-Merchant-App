@@ -22,7 +22,7 @@ class MerchantNameEditorDialog(private val activity: MainActivity) {
                     val name = etName.text.toString()
                     if (name.isNotEmpty()) {
                         if (Settings.getMerchantName(activity) != name) {
-                            Settings.setMerchantName(activity, name);
+                            Settings.setMerchantName(activity, name)
                             SnackHelper.show(activity, activity.getString(R.string.notify_changes_have_been_saved))
                         }
                         namePref.text = name
