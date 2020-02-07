@@ -17,11 +17,9 @@
  */
 package com.google.bitcoin.uri;
 
-import android.util.Log;
-
-import com.github.kiulian.converter.AddressConverter;
-
+import org.bitcoinj.core.CashAddressFactory;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.params.MainNetParams;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -117,7 +115,7 @@ public class BitcoinCashURI {
             throw new IllegalArgumentException("Coin must be positive");
         } else {
             StringBuilder builder = new StringBuilder();
-            String bchAddress = AddressConverter.toCashAddress(legacy);
+            String bchAddress = CashAddressFactory.create().getFromBase58(MainNetParams.get(), legacy).toString();
             builder.append(bchAddress);
             boolean questionMarkHasBeenOutput = false;
             if (amount != null) {
@@ -176,29 +174,5 @@ public class BitcoinCashURI {
             // should not happen - UTF-8 is a valid encoding
             throw new RuntimeException(e);
         }
-    }
-
-    public static String toLegacyAddress(String address) {
-        if (address != null) {
-            address = address.trim();
-            // convert from bitcoincash_address BCH TO legacy BTC address
-            String bchAddress = address.toLowerCase();
-            if (bchAddress.startsWith("q") && bchAddress.indexOf(':') == -1) {
-                bchAddress = BITCOIN_SCHEME + ":" + bchAddress;
-            }
-            if (bchAddress.startsWith(BITCOIN_SCHEME + ":")) {
-                try {
-                    address = AddressConverter.toLegacyAddress(bchAddress);
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
-                    address = null;
-                }
-            }
-        }
-        return address;
-    }
-
-    public static String toCashAddress(String legacy) {
-        return AddressConverter.toCashAddress(legacy);
     }
 }

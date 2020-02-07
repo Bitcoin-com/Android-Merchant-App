@@ -3,7 +3,6 @@ package com.bitcoin.merchant.app.util
 import android.util.Log
 import com.bitcoin.merchant.app.application.CashRegisterApplication
 import com.bitcoin.merchant.app.database.DBControllerV3
-import com.github.kiulian.converter.b58.B58
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.Base58
 import org.bitcoinj.core.ECKey
@@ -22,9 +21,7 @@ class WalletUtil(private val xPub: String, private val app: CashRegisterApplicat
     private val addressBank: AddressBank
     private var xpubIndex: Int
     fun isSameXPub(xPub: String): Boolean {
-        val b1 = B58.decodeAndCheck(this.xPub)
-        val b2 = B58.decodeAndCheck(xPub)
-        return Arrays.equals(b1, b2)
+        return this.xPub == xPub
     }
 
     fun addUsedAddress(address: String) {

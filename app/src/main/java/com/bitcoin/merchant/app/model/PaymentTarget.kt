@@ -2,10 +2,10 @@ package com.bitcoin.merchant.app.model
 
 import android.util.Log
 import com.bitcoin.merchant.app.util.AddressUtil
-import com.bitcoin.merchant.app.util.Settings
-import com.github.kiulian.converter.AddressConverter
 import info.blockchain.wallet.util.FormatsUtil
 import org.apache.commons.lang3.StringUtils
+import org.bitcoinj.core.CashAddressFactory
+import org.bitcoinj.params.MainNetParams
 
 data class PaymentTarget(val type: Type, val target: String) {
     val TAG = "PaymentTarget"
@@ -56,7 +56,7 @@ data class PaymentTarget(val type: Type, val target: String) {
             if (AddressUtil.isValidLegacy(value))
                 return PaymentTarget(Type.ADDRESS, value)
             if (AddressUtil.isValidCashAddr(value))
-                return PaymentTarget(Type.ADDRESS, AddressConverter.toLegacyAddress(value))
+                return PaymentTarget(Type.ADDRESS, CashAddressFactory.create().getFromFormattedAddress(MainNetParams.get(), value).toBase58())
             if (isApiKey(value))
                 return PaymentTarget(Type.API_KEY, value)
             return PaymentTarget(Type.INVALID, "")

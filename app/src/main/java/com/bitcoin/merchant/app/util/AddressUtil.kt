@@ -1,24 +1,19 @@
 package com.bitcoin.merchant.app.util
 
-import com.github.kiulian.converter.AddressConverter
-import com.github.kiulian.converter.b58.B58
-import de.tobibrandt.bitcoincash.BitcoinCashAddressFormatter
+import org.bitcoinj.core.Address
+import org.bitcoinj.core.CashAddressFactory
+import org.bitcoinj.params.MainNetParams
 
 object AddressUtil {
     fun isValidCashAddr(address: String?): Boolean {
-        return BitcoinCashAddressFormatter.isValidCashAddress(address)
+        return Address.isValidCashAddr(MainNetParams.get(), address)
     }
 
     fun isValidLegacy(address: String): Boolean {
-        return try {
-            B58.decodeAndCheck(address)
-            true
-        } catch (e: Exception) {
-            false
-        }
+        return Address.isValidLegacyAddress(MainNetParams.get(), address)
     }
 
     fun toCashAddress(legacy: String): String {
-        return AddressConverter.toCashAddress(legacy)
+        return CashAddressFactory.create().getFromBase58(MainNetParams.get(), legacy).toString()
     }
 }
