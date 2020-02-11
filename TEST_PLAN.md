@@ -319,12 +319,14 @@ This requires to both uninstall the app and to clear the app cache.
    * Ensure that the list is empty and display a message saying that there is no TX available
 1. Verify newly paid invoice is added to the list
    * Go to 'Payment INPUT' screen
-   * Enter a specific amount
+   * Enter the amount USD 0,05
    * Click Charge to generate an invoice/QR code
    * Pay the invoice
    * Go to Transactions screen
-   * Ensure that the  
-1. Verify TX list is populated correctly 
+   * Ensure that the amount is correctly displayed as USD 0,05 (dollar sign is OK)
+   * Ensure that the timestamp is correct
+   * Ensure that the BCH amount seems correct
+1. Verify TX list is populated correctly
    * **NOT READY** - This test requires the deployment of the new Bitcoin Pay Console
    * Force stop + Clear data + Uninstall app
    * Install & launchapp & do required setup using a payment target that has paid invoices in the past 

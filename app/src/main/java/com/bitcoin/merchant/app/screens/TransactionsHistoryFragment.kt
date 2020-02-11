@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.*
 import android.graphics.Typeface
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -15,16 +14,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.bitcoin.merchant.app.R
-import com.bitcoin.merchant.app.database.PaymentRecord
+import com.bitcoin.merchant.app.database.toPaymentRecord
 import com.bitcoin.merchant.app.screens.features.ToolbarAwareFragment
 import com.bitcoin.merchant.app.util.DateUtil
 import com.bitcoin.merchant.app.util.MonetaryUtil
 import com.bitcoin.merchant.app.util.Settings
 import com.crashlytics.android.Crashlytics
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.bitcoindotcom.bchprocessor.bip70.model.Bip70Action
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -53,7 +55,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         setToolbarTitle(R.string.menu_transactions)
         swipeLayout = rootView.findViewById(R.id.swipe_container)
         swipeLayout.setProgressViewEndTarget(false, (resources.displayMetrics.density * (72 + 20)).toInt())
-        swipeLayout.setOnRefreshListener(OnRefreshListener { LoadTxFromDatabaseTask(true).execute() })
+        swipeLayout.setOnRefreshListener { loadTxFromDatabaseTask(true) }
         swipeLayout.setColorSchemeResources(
                 R.color.bitcoindotcom_darker_green,
                 R.color.bitcoindotcom_green,
@@ -79,8 +81,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         listView.setOnScrollListener(object : AbsListView.OnScrollListener {
             override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {}
             override fun onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
-                if (listView.getChildAt(0) != null) {
-                    swipeLayout.isEnabled = listView.firstVisiblePosition == 0 && listView.getChildAt(0).top == 0
+                listView.getChildAt(0)?.also {
+                    swipeLayout.isEnabled = listView.firstVisiblePosition == 0 && it.top == 0
                 }
             }
         })
@@ -94,7 +96,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
 
     override fun onResume() {
         super.onResume()
-        LoadTxFromDatabaseTask(false).execute()
+        loadTxFromDatabaseTask(false)
     }
 
     private fun showTransactionMenu(item: Long) {
@@ -133,49 +135,35 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
 
     // view not yet created
     protected val isSafe: Boolean
-        protected get() = ready && !this.isRemoving && !this.isDetached && this.isAdded && this.view != null
+        get() = ready && !this.isRemoving && !this.isDetached && this.isAdded && this.view != null
 
-    private fun findAllPotentialMissingTx() { // TODO use merchant server to query all TX
+    private fun requestToDownloadAllTx() { // TODO use merchant server to query all TX
         LocalBroadcastManager.getInstance(activity).sendBroadcast(Intent(Bip70Action.QUERY_ALL_TX_FROM_BITCOIN_COM_PAY))
     }
 
-    private inner class LoadTxFromDatabaseTask(private val queryServer: Boolean)
-        : AsyncTask<Void?, Void?, ArrayList<ContentValues>?>() {
-        override fun onPreExecute() {
-            super.onPreExecute()
+    private fun loadTxFromDatabaseTask(queryServer: Boolean) {
+        if (!isSafe || !Settings.getPaymentTarget(activity).isValid) return
+        viewLifecycleOwner.lifecycleScope.launch {
             swipeLayout.isRefreshing = true
-        }
-
-        override fun doInBackground(vararg params: Void?): ArrayList<ContentValues>? {
-            if (!isSafe) return null
-            val address = Settings.getPaymentTarget(activity)
-            if (address.isValid) {
+            val txs: ArrayList<ContentValues>? = withContext(Dispatchers.IO) {
                 try {
-                    return app.db.allPayments
+                    app.db.allPayments
                 } catch (e: Exception) {
                     Log.e(TAG, "getAllPayments", e)
                     Crashlytics.logException(e)
+                    null
                 }
             }
-            return null
-        }
-
-        override fun onPostExecute(result: ArrayList<ContentValues>?) {
-            super.onPostExecute(result)
-            if (!isSafe) return
-            if (result != null) {
-                adapter.reset(result)
-                if (result.size != 0) {
+            swipeLayout.isRefreshing = false
+            if (!isSafe) return@launch
+            txs?.also {
+                adapter.reset(txs)
+                if (txs.size != 0) {
                     setTxListVisibility(true)
                 }
             }
             if (queryServer) {
-                findAllPotentialMissingTx()
-            } else {
-                if (result != null && result.size != 0) {
-                    setTxListVisibility(true)
-                }
-                swipeLayout.isRefreshing = false
+                requestToDownloadAllTx()
             }
         }
     }
@@ -205,7 +193,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             val view = convertView
                     ?: inflater.inflate(R.layout.list_item_transaction, parent, false)
             try {
-                val r = PaymentRecord(mListItems[position])
+                val r = mListItems[position].toPaymentRecord()
                 setupView(view, r.bchAmount, r.fiatAmount, r.timeInSec, r.confirmations)
             } catch (e: Exception) {
                 Log.e(TAG, "getView", e)

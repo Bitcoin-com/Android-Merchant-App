@@ -22,32 +22,6 @@ class PaymentRecord {
         this.tx = tx
     }
 
-    constructor(vals: ContentValues) {
-        timeInSec = vals.getAsLong("ts")
-        tx = vals.getAsString("tx")
-        address = vals.getAsString("iad")
-        bchAmount = vals.getAsLong("amt")
-        fiatAmount = vals.getAsString("famt")
-        confirmations = vals.getAsInteger("cfm")
-        message = vals.getAsString("message")
-    }
-
-    fun toContentValues(): ContentValues {
-        val c = ContentValues()
-        toContentValues(c)
-        return c
-    }
-
-    fun toContentValues(c: ContentValues) {
-        c.put("ts", timeInSec)
-        c.put("tx", tx)
-        c.put("iad", address)
-        c.put("amt", java.lang.Long.toString(bchAmount))
-        c.put("famt", fiatAmount)
-        c.put("cfm", Integer.toString(confirmations))
-        c.put("msg", message)
-    }
-
     override fun equals(o: Any?): Boolean {
         if (this === o) return true
         if (o == null || javaClass != o.javaClass) return false

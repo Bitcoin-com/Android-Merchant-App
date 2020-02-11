@@ -8,23 +8,16 @@ import java.util.*
 class AmountUtil(private val context: Context) {
     fun formatFiat(amountFiat: Double): String {
         val ccl = Settings.getCountryCurrencyLocale(context)
-        var fiat: String? = null
-        try {
+        return try {
             val formatter = NumberFormat.getCurrencyInstance(ccl.locale)
-            val instance = Currency.getInstance(ccl.currency)
-            formatter.currency = instance
-            formatter.maximumFractionDigits = instance.defaultFractionDigits
-            fiat = formatter.format(amountFiat)
+            val currency = Currency.getInstance(ccl.currency)
+            formatter.currency = currency
+            formatter.maximumFractionDigits = currency.defaultFractionDigits
+            formatter.format(amountFiat).replace(CURRENCY_SIGN, ccl.currency)
         } catch (e: Exception) {
             Log.d(TAG, "Locale not supported for $ccl.currency failed to format to fiat: $amountFiat")
-        }
-        fiat = if (fiat != null) {
-            val currencySign = "\u00a4"
-            fiat.replace(currencySign, ccl.currency)
-        } else {
             ccl.currency + " " + MonetaryUtil.instance.fiatDecimalFormat.format(amountFiat)
         }
-        return fiat
     }
 
     fun formatBch(amountBch: Double): String {
@@ -34,5 +27,6 @@ class AmountUtil(private val context: Context) {
     companion object {
         const val TAG = "AmountUtil"
         const val DEFAULT_CURRENCY_BCH = "BCH"
+        const val CURRENCY_SIGN = "\u00a4"
     }
 }

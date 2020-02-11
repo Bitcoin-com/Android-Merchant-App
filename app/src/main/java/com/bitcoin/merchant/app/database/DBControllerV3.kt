@@ -12,6 +12,28 @@ import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.util.CharSequenceX
 import java.util.*
 
+fun ContentValues.toPaymentRecord(): PaymentRecord {
+    return PaymentRecord(timeInSec = getAsLong("ts"),
+            tx = getAsString("tx"),
+            address = getAsString("iad"),
+            bchAmount = getAsLong("amt"),
+            fiatAmount = getAsString("famt"),
+            confirmations = getAsInteger("cfm"),
+            message = getAsString("msg"))
+}
+
+private fun PaymentRecord.toContentValues(): ContentValues {
+    val c = ContentValues()
+    c.put("ts", timeInSec)
+    c.put("tx", tx)
+    c.put("iad", address)
+    c.put("amt", bchAmount.toString())
+    c.put("famt", fiatAmount)
+    c.put("cfm", confirmations.toString())
+    c.put("msg", message)
+    return c
+}
+
 class DBControllerV3(app: CashRegisterApplication?) : SQLiteOpenHelper(app, DB, null, 1) {
     private val salt: String = Build.MANUFACTURER + Build.BRAND + Build.MODEL + Build.DEVICE + Build.PRODUCT + Build.SERIAL
     override fun onCreate(database: SQLiteDatabase) {
@@ -37,7 +59,12 @@ class DBControllerV3(app: CashRegisterApplication?) : SQLiteOpenHelper(app, DB, 
     }
 
     @Throws(Exception::class)
-    fun insertPayment(record: ContentValues?) {
+    fun insertPayment(record: PaymentRecord) {
+        insertPayment(record.toContentValues())
+    }
+
+    @Throws(Exception::class)
+    fun insertPayment(record: ContentValues) {
         var database: SQLiteDatabase? = null
         try {
             database = this.writableDatabase
@@ -147,10 +174,8 @@ class DBControllerV3(app: CashRegisterApplication?) : SQLiteOpenHelper(app, DB, 
     }
 
     private fun formatValues(vals: ContentValues) {
-        val amt = vals.getAsString("amt").toLong()
-        val cfm = vals.getAsString("cfm").toInt()
-        vals.put("amt", amt)
-        vals.put("cfm", cfm)
+        vals.put("amt", vals.getAsString("amt").toLong())
+        vals.put("cfm", vals.getAsString("cfm").toInt())
     }
 
     @get:Throws(Exception::class)
