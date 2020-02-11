@@ -1,6 +1,8 @@
 package com.bitcoin.merchant.app.screens.dialogs
 
 import android.app.AlertDialog
+import android.content.ClipboardManager
+import android.content.Context
 import android.widget.EditText
 import android.widget.TextView
 import com.bitcoin.merchant.app.MainActivity
@@ -52,13 +54,19 @@ class AddNewAddressDialog(private val settingsController: SettingsFragment) {
     }
 
     private fun enterAddressUsingInputField() {
-        if (ENTERING_ADDRESS_BYPASSED) {
-            settingsController.setAndDisplayPaymentTarget(PaymentTarget.parse("1MxRuANd5CmHWcveTwQaAJ36sStEQ5QM5k"))
+        val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        if(clipboard!!.hasPrimaryClip()) {
+            val clibpoardString = clipboard.primaryClip?.getItemAt(0)?.text.toString()
+            settingsController.validateThenSetPaymentTarget(clibpoardString.trim { it <= ' ' })
         } else {
-            val editText = EditText(ctx)
-            editText.isSingleLine = true
-            editText.setText(Settings.getPaymentTarget(ctx).bchAddress)
-            showDialogToEnterAddress(editText)
+            if (ENTERING_ADDRESS_BYPASSED) {
+                settingsController.setAndDisplayPaymentTarget(PaymentTarget.parse("1MxRuANd5CmHWcveTwQaAJ36sStEQ5QM5k"))
+            } else {
+                val editText = EditText(ctx)
+                editText.isSingleLine = true
+                editText.setText(Settings.getPaymentTarget(ctx).bchAddress)
+                showDialogToEnterAddress(editText)
+            }
         }
     }
 }
