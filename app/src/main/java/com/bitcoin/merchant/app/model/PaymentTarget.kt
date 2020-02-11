@@ -4,8 +4,6 @@ import android.util.Log
 import com.bitcoin.merchant.app.util.AddressUtil
 import info.blockchain.wallet.util.FormatsUtil
 import org.apache.commons.lang3.StringUtils
-import org.bitcoinj.core.CashAddressFactory
-import org.bitcoinj.params.MainNetParams
 
 data class PaymentTarget(val type: Type, val target: String) {
     val TAG = "PaymentTarget"
@@ -38,12 +36,12 @@ data class PaymentTarget(val type: Type, val target: String) {
 
 
     companion object {
-        fun isApiKey(value: String): Boolean {
+        private fun isApiKey(value: String): Boolean {
             return !StringUtils.isEmpty(value)
                     && value.matches(Regex.fromLiteral("[a-z]{40}"))
         }
 
-        fun isXPub(value: String): Boolean {
+        private fun isXPub(value: String): Boolean {
             return FormatsUtil.getInstance().isValidXpub(value)
         }
 
@@ -56,7 +54,7 @@ data class PaymentTarget(val type: Type, val target: String) {
             if (AddressUtil.isValidLegacy(value))
                 return PaymentTarget(Type.ADDRESS, value)
             if (AddressUtil.isValidCashAddr(value))
-                return PaymentTarget(Type.ADDRESS, CashAddressFactory.create().getFromFormattedAddress(MainNetParams.get(), value).toBase58())
+                return PaymentTarget(Type.ADDRESS, AddressUtil.toLegacyAddress(value))
             if (isApiKey(value))
                 return PaymentTarget(Type.API_KEY, value)
             return PaymentTarget(Type.INVALID, "")

@@ -54,10 +54,10 @@ class AddNewAddressDialog(private val settingsController: SettingsFragment) {
     }
 
     private fun enterAddressUsingInputField() {
-        val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-        if(clipboard!!.hasPrimaryClip()) {
-            val clibpoardString = clipboard.primaryClip?.getItemAt(0)?.text.toString()
-            settingsController.validateThenSetPaymentTarget(clibpoardString.trim { it <= ' ' })
+        val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        if (clipboard.hasPrimaryClip()) {
+            val content: String = clipboard.primaryClip?.getItemAt(0)?.text?.toString() ?: ""
+            settingsController.validateThenSetPaymentTarget(content.trim { it <= ' ' })
         } else {
             if (ENTERING_ADDRESS_BYPASSED) {
                 settingsController.setAndDisplayPaymentTarget(PaymentTarget.parse("1MxRuANd5CmHWcveTwQaAJ36sStEQ5QM5k"))

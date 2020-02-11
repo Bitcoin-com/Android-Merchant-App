@@ -35,7 +35,7 @@
     <string name="syncing_xpub">Synchronizacja xpub…</string>
     <string name="synced_xpub">xpub zsynchronizowany!</string>
     <string name="no_history_text">Nie ma historii płatności.</string>
-    <string name="options_add_payment_address">Add destination address</string>
+    <string name="options_add_payment_address">Dodaj adres docelowy</string>
     <string name="options_explain_payment_address">Adres docelowy może być adresem Bitcoin Cash, poszerzonym kluczem publicznym(xpub), kluczem API handlarza lub kodem parującym.</string>
     <string name="button_save">Zapisz</string>
     <string name="payment_enter_an_amount">Podaj sumę</string>

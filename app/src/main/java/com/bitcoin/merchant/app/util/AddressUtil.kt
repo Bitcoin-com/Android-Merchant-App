@@ -5,7 +5,7 @@ import org.bitcoinj.core.CashAddressFactory
 import org.bitcoinj.params.MainNetParams
 
 object AddressUtil {
-    fun isValidCashAddr(address: String?): Boolean {
+    fun isValidCashAddr(address: String): Boolean {
         return Address.isValidCashAddr(MainNetParams.get(), address)
     }
 
@@ -15,5 +15,9 @@ object AddressUtil {
 
     fun toCashAddress(legacy: String): String {
         return CashAddressFactory.create().getFromBase58(MainNetParams.get(), legacy).toString()
+    }
+
+    fun toLegacyAddress(address: String): String {
+        return CashAddressFactory.create().getFromFormattedAddress(MainNetParams.get(), address).toBase58()
     }
 }

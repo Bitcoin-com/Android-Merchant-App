@@ -19,7 +19,7 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
     private val accountKey: DeterministicKey
     // For performance reasons, we cache all used addresses (reported in May 2019 on Lenovo Tab E8)
     private val addressBank: AddressBank
-    private var xpubIndex: Int
+    private var xpubIndex: Int = Settings.getXPubIndex(app, xPub)
     fun isSameXPub(xPub: String): Boolean {
         return this.xPub == xPub
     }
@@ -36,13 +36,10 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
     /**
      * Gets the next address without checking balance on the network rest.bitcoin.com
      * to reduce delays & risks of failure when generating QR code
-     * TODO improve by doing an online lookup of max 3 seconds using coroutine
      */
-    fun generateAddressFromXPub(): String {
+    fun getAddressFromXPubAndMoveToNext(): String {
         val address = getAddressFromXpubKey(xpubIndex)
-        xpubIndex++
-        Log.d(TAG, "Getting next xpub index " + xpubIndex)
-        saveWallet(xpubIndex)
+        moveToNextAddress()
         return address
     }
 
@@ -59,34 +56,32 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
     private fun loopThroughXpubChildren(): String {
         var potentialAddress = getAddressFromXpubKey(xpubIndex)
         while (true) {
-            potentialAddress = if (addressBank.isUsed(potentialAddress)) {
-                xpubIndex++
-                Log.d(TAG, "Getting next xpub index " + xpubIndex)
-                saveWallet(xpubIndex)
-                getAddressFromXpubKey(xpubIndex)
-            } else {
-                val hasHistory = doesAddressHaveHistory(potentialAddress)
-                if (hasHistory) {
-                    xpubIndex++
-                    Log.d(TAG, "Getting next xpub index " + xpubIndex)
-                    saveWallet(xpubIndex)
+            if (!addressBank.isUsed(potentialAddress)) {
+                if (doesAddressHaveHistoryOnBlockchain(potentialAddress)) {
                     addUsedAddress(potentialAddress)
-                    getAddressFromXpubKey(xpubIndex)
                 } else {
-                    break
+                    break // current address is unused
                 }
             }
+            // new address required
+            moveToNextAddress()
+            potentialAddress = getAddressFromXpubKey(xpubIndex)
         }
-        saveWallet(xpubIndex)
         return potentialAddress
     }
 
+    private fun moveToNextAddress() {
+        xpubIndex++
+        Log.d(TAG, "Getting next xpub index $xpubIndex")
+        saveWallet(xpubIndex)
+    }
+
     @Throws(Exception::class)
-    private fun doesAddressHaveHistory(address: String): Boolean {
+    private fun doesAddressHaveHistoryOnBlockchain(address: String): Boolean {
         var doubleBackOff: Long = 1000
         while (true) {
             doubleBackOff *= try {
-                val json = JSONObject(URL(urlRestBitcoinCom + "/address/details/$address").readText())
+                val json = JSONObject(URL("$urlRestBitcoinCom/address/details/$address").readText())
                 return json.getJSONArray("transactions").length() > 0
             } catch (e: Exception) {
                 Log.e(TAG, "doesAddressHaveHistory", e)
@@ -109,10 +104,7 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
     }
 
     override fun toString(): String {
-        return "WalletUtil{" +
-                "xPub='" + xPub + '\'' +
-                ", index=" + xpubIndex +
-                '}'
+        return "WalletUtil{xPub='$xPub', index=$xpubIndex}"
     }
 
     private inner class AddressBank(db: DBControllerV3) {
@@ -126,11 +118,12 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
         }
 
         init {
-            var addresses: Set<String?>? = HashSet()
+            var addresses: Set<String>
             try {
                 addresses = db.allAddresses
-                Log.d(TAG, "loaded " + addresses.size + " addresses from TX history: " + addresses)
+                Log.d(TAG, "loaded ${addresses.size} addresses from TX history: $addresses")
             } catch (e: Exception) {
+                addresses = HashSet()
                 Log.e(TAG, "Unable to load addresses from TX history")
             }
             usedAddresses = Collections.synchronizedSet(addresses)
@@ -159,7 +152,6 @@ class WalletUtil(private val urlRestBitcoinCom: String, private val xPub: String
     }
 
     init {
-        xpubIndex = Settings.getXPubIndex(app, xPub);
         val key = createMasterPubKeyFromXPub(xPub)
         //This gets the receive chain from the xpub. If you want to generate change addresses, switch to 1 for the childNumber.
         accountKey = HDKeyDerivation.deriveChildKey(key, ChildNumber(0, false))

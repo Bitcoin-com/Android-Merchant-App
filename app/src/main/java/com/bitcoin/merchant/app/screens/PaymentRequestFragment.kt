@@ -1,18 +1,14 @@
 package com.bitcoin.merchant.app.screens
 
-import android.annotation.SuppressLint
 import android.content.*
 import android.graphics.Bitmap
 import android.graphics.Color.BLACK
 import android.graphics.Color.WHITE
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.ConnectivityManager
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +16,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bitcoin.merchant.app.MainActivity
 import com.bitcoin.merchant.app.R
@@ -32,13 +29,15 @@ import com.bitcoin.merchant.app.util.Settings
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.bitcoindotcom.bchprocessor.bip70.Bip70Manager
 import org.bitcoindotcom.bchprocessor.bip70.Bip70PayService
 import org.bitcoindotcom.bchprocessor.bip70.model.Bip70Action
 import org.bitcoindotcom.bchprocessor.bip70.model.InvoiceRequest
 import org.bitcoindotcom.bchprocessor.bip70.model.InvoiceStatus
 import retrofit2.Response
-import java.net.SocketTimeoutException
 import java.util.*
 
 class PaymentRequestFragment : ToolbarAwareFragment() {
@@ -59,7 +58,6 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
     private lateinit var bip70PayService: Bip70PayService
     private var lastProcessedInvoicePaymentId: String? = null
     private var qrCodeUri: String? = null
-    private var fiatFormatted: String? = null
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Bip70Action.INVOICE_PAYMENT_ACKNOWLEDGED == intent.action) {
@@ -72,20 +70,11 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
                 updateConnectionStatus(intent.getBooleanExtra(Bip70Action.PARAM_CONNECTION_STATUS_ENABLED, false))
             }
             if (Bip70Action.NETWORK_RECONNECT == intent.action) {
-                reconnectIfNecessary()
+                bip70Manager.reconnectIfNecessary()
             }
-            // TODO fix this
-            if (ConnectivityManager.CONNECTIVITY_ACTION == intent.action) {
-                if (intent.extras != null) {
-                    reconnectIfNecessary()
-                }
-            }
-        }
-
-        private fun reconnectIfNecessary() {
-            bip70Manager.reconnectIfNecessary()
         }
     }
+
     private fun expirePayment(invoiceStatus: InvoiceStatus) {
         if (markInvoiceAsProcessed(invoiceStatus)) {
             return
@@ -103,6 +92,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
             return
         }
         Log.i(MainActivity.TAG, "record new Tx:$i")
+        val fiatFormatted = AmountUtil(activity).formatFiat(i.fiatTotal)
         app.paymentProcessor.recordInDatabase(i, fiatFormatted)
         showCheckMark()
         soundAlert()
@@ -143,11 +133,20 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         bip70PayService = Bip70PayService.create(resources.getString(R.string.bip70_bitcoin_com_host))
         bip70Manager = Bip70Manager(app)
         val args = arguments
-        val f = AmountUtil(activity)
-        val amountFiat = args?.getDouble(PaymentInputFragment.AMOUNT_PAYABLE_FIAT, 0.0)
-                ?: 0.0
+        val amountFiat = args?.getDouble(PaymentInputFragment.AMOUNT_PAYABLE_FIAT, 0.0) ?: 0.0
         if (amountFiat > 0.0) {
-            val invoiceRequest = createInvoice(amountFiat, Settings.getCountryCurrencyLocale(activity).currency)
+            createNewInvoice(amountFiat)
+        } else {
+            resumeExistingInvoice()
+        }
+        return v
+    }
+
+    private fun createNewInvoice(amountFiat: Double) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val invoiceRequest = withContext(Dispatchers.IO) {
+                createInvoice(amountFiat, Settings.getCountryCurrencyLocale(activity).currency)
+            }
             if (invoiceRequest == null) {
                 unableToDisplayInvoice()
             } else {
@@ -155,19 +154,29 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
                 // because this Fragment is always instantiated below the PaymentRequest
                 // when resuming from a crash on the PaymentRequest
                 Settings.deleteActiveInvoice(activity)
-                fiatFormatted = f.formatFiat(amountFiat)
-                tvFiatAmount.text = fiatFormatted
-                generateInvoiceAndWaitForPayment(invoiceRequest)
-            }
-        } else {
-            val activeInvoice = Settings.getActiveInvoice(activity)
-            if (activeInvoice == null) {
-                unableToDisplayInvoice()
-            } else {
-                generateQrCodeAndWaitForPayment(activeInvoice)
+                tvFiatAmount.text = AmountUtil(activity).formatFiat(amountFiat)
+                setWorkInProgress(true)
+                val invoice: InvoiceStatus? = downloadInvoice(invoiceRequest)
+                invoice?.let {
+                    connectToSocketAndGenerateQrCode(invoice)?.also { showQrCodeAndAmountFields(invoice, it) }
+                }
+                setWorkInProgress(false)
             }
         }
-        return v
+    }
+
+    private fun resumeExistingInvoice() {
+        val invoice = Settings.getActiveInvoice(activity)
+        if (invoice == null) {
+            unableToDisplayInvoice()
+        } else {
+            viewLifecycleOwner.lifecycleScope.launch {
+                setWorkInProgress(true)
+                tvFiatAmount.visibility = View.INVISIBLE  // default values are incorrect
+                connectToSocketAndGenerateQrCode(invoice)?.also { showQrCodeAndAmountFields(invoice, it) }
+                setWorkInProgress(false)
+            }
+        }
     }
 
     private fun unableToDisplayInvoice() {
@@ -178,7 +187,6 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
 
     private fun registerReceiver() {
         val filter = IntentFilter()
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION) // TODO fix
         filter.addAction(Bip70Action.INVOICE_PAYMENT_ACKNOWLEDGED)
         filter.addAction(Bip70Action.INVOICE_PAYMENT_EXPIRED)
         filter.addAction(Bip70Action.UPDATE_CONNECTION_STATUS)
@@ -205,14 +213,14 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         receivedLayout = v.findViewById(R.id.layout_complete)
         ivCancel = v.findViewById(R.id.iv_cancel)
         ivDone = v.findViewById(R.id.iv_done)
-        showGeneratingQrCodeProgress(true)
+        setWorkInProgress(true)
         ivCancel.setOnClickListener { deleteActiveInvoiceAndExitScreen() }
         ivReceivingQr.setOnClickListener { copyQrCodeToClipboard() }
         waitingLayout.visibility = View.VISIBLE
         receivedLayout.visibility = View.GONE
     }
 
-    private fun showGeneratingQrCodeProgress(enabled: Boolean) {
+    private fun setWorkInProgress(enabled: Boolean) {
         progressLayout.visibility = if (enabled) View.VISIBLE else View.GONE
         ivReceivingQr.visibility = if (enabled) View.GONE else View.VISIBLE
     }
@@ -247,7 +255,12 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
             PaymentTarget.Type.API_KEY -> i.apiKey = paymentTarget.target
             PaymentTarget.Type.ADDRESS -> i.address = paymentTarget.legacyAddress
             PaymentTarget.Type.XPUB -> try {
-                i.address = app.wallet.generateAddressFromXPub()
+                // known limitation: we only check for used addresses when setting the xPub
+                // as a consequence if the same xPubKey is used on multiple cashiers/terminals
+                // then addresses can be reused. Address reuse is not an issue
+                // because the BIP-70 server is the one only broadcasting the TX to that address
+                // and thus it is aware of which invoice is being paid without possible confusion
+                i.address = app.wallet.getAddressFromXPubAndMoveToNext()
                 Log.i(MainActivity.TAG, "BCH-address(xPub) to receive: " + i.address)
             } catch (e: Exception) {
                 Log.e(MainActivity.TAG, "", e)
@@ -257,119 +270,64 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         return i
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private fun generateInvoiceAndWaitForPayment(invoiceRequest: InvoiceRequest) {
-        object : AsyncTask<InvoiceRequest?, Void?, Pair<InvoiceStatus?, Bitmap?>>() {
-            override fun onPreExecute() {
-                super.onPreExecute()
-                showGeneratingQrCodeProgress(true)
+    private suspend fun downloadInvoice(request: InvoiceRequest): InvoiceStatus? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response: Response<InvoiceStatus?> = bip70PayService.createInvoice(request).execute()
+                val invoice = response.body()
+                        ?: throw Exception("HTTP status:" + response.code() + " message:" + response.message())
+                Settings.setActiveInvoice(activity, invoice)
+                invoice
+            } catch (e: Exception) {
+                DialogHelper.show(activity, activity.getString(R.string.error), e.message) { exitScreen() }
+                null
             }
-
-            override fun doInBackground(vararg requests: InvoiceRequest?): Pair<InvoiceStatus?, Bitmap?> {
-                val request = requests[0]!!
-                var invoice: InvoiceStatus? = null
-                var bitmap: Bitmap? = null
-                try {
-                    val response: Response<InvoiceStatus?> = bip70PayService.createInvoice(request).execute()
-                    invoice = response.body()
-                    if (invoice == null) {
-                        throw Exception("HTTP status:" + response.code() + " message:" + response.message())
-                    } else {
-                        Settings.setActiveInvoice(activity, invoice)
-                    }
-                    qrCodeUri = invoice.walletUri
-                    // connect the socket first before showing the bitmap
-                    bip70Manager.startWebsockets(invoice.paymentId)
-                    bitmap = getQrCodeBitmap(invoice.walletUri)
-
-
-                } catch (e: Exception) {
-                    if (e !is SocketTimeoutException) {
-                        Log.e(MainActivity.TAG, "", e)
-                    }
-                    DialogHelper.show(activity, activity.getString(R.string.error), e.message) { exitScreen() }
-                }
-                return Pair(invoice, bitmap)
-            }
-
-            override fun onPostExecute(pair: Pair<InvoiceStatus?, Bitmap?>) {
-                super.onPostExecute(pair)
-                showGeneratingQrCodeProgress(false)
-                showQrCodeAndAmountFields(pair)
-            }
-        }.execute(invoiceRequest)
-    }
-
-    @Throws(Exception::class)
-    private fun getQrCodeBitmap(url: String): Bitmap? {
-        Log.d(MainActivity.TAG, "paymentUrl:$url")
-        return encodeAsBitmap(url, 260)
-    }
-
-    @Throws(Exception::class)
-    private fun encodeAsBitmap(text: String, width: Int) : Bitmap? {
-        val result: BitMatrix = try {
-            MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, width, null);
-        } catch (e : Exception ) {
-             return null // Unsupported format
         }
-        val w = result.getWidth();
-        val h = result.getHeight();
-        val pixels = IntArray(w * h);
+    }
+
+    private suspend fun connectToSocketAndGenerateQrCode(invoice: InvoiceStatus): Bitmap? {
+        return withContext(Dispatchers.IO) {
+            try {
+                // connect the socket first before showing the bitmap as connection takes longer
+                bip70Manager.startWebsockets(invoice.paymentId)
+                qrCodeUri = invoice.walletUri
+                Log.d(MainActivity.TAG, "paymentUrl:${invoice.walletUri}")
+                getQrCodeAsBitmap(invoice.walletUri)
+            } catch (e: Exception) {
+                DialogHelper.show(activity, activity.getString(R.string.error), e.message) { exitScreen() }
+                null
+            }
+        }
+    }
+
+    @Throws(Exception::class)
+    private fun getQrCodeAsBitmap(text: String, width: Int = 260): Bitmap {
+        val result: BitMatrix = try {
+            MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, width, null)
+        } catch (e: Exception) {
+            throw Exception("Unsupported format", e)
+        }
+        val w = result.width
+        val h = result.height
+        val pixels = IntArray(w * h)
         for (y in 0 until h) {
             val offset = y * w
             for (x in 0 until w) {
                 pixels[offset + x] = if (result.get(x, y)) BLACK else WHITE
             }
         }
-        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        bitmap.setPixels(pixels, 0, width, 0, 0, w, h);
-        return bitmap;
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        bitmap.setPixels(pixels, 0, width, 0, 0, w, h)
+        return bitmap
     }
 
-    private fun showQrCodeAndAmountFields(pair: Pair<InvoiceStatus?, Bitmap?>) {
-        val i = pair.first
-        val bitmap = pair.second
-        if (i != null && bitmap != null) {
-            val f = AmountUtil(activity)
-            tvFiatAmount.text = f.formatFiat(i.fiatTotal)
-            tvBtcAmount.text = f.formatBch(i.totalBchAmount.toDouble())
-            ivReceivingQr.setImageBitmap(bitmap)
-            initiateCountdown(i)
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private fun generateQrCodeAndWaitForPayment(invoiceStatus: InvoiceStatus) {
-        object : AsyncTask<InvoiceStatus?, Void?, Pair<InvoiceStatus?, Bitmap?>>() {
-            override fun onPreExecute() {
-                super.onPreExecute()
-                showGeneratingQrCodeProgress(true)
-            }
-
-            override fun doInBackground(vararg invoices: InvoiceStatus?): Pair<InvoiceStatus?, Bitmap?> {
-                val invoice = invoices[0]!!
-                var bitmap: Bitmap? = null
-                try {
-                    qrCodeUri = invoice.walletUri
-                    // connect the socket first before showing the bitmap
-                    bip70Manager.startWebsockets(invoice.paymentId)
-                    bitmap = getQrCodeBitmap(invoice.walletUri)
-                } catch (e: Exception) {
-                    if (e !is SocketTimeoutException) {
-                        Log.e(MainActivity.TAG, "", e)
-                    }
-                    DialogHelper.show(activity, activity.getString(R.string.error), e.message) { exitScreen() }
-                }
-                return Pair(invoice, bitmap)
-            }
-
-            override fun onPostExecute(pair: Pair<InvoiceStatus?, Bitmap?>) {
-                super.onPostExecute(pair)
-                showGeneratingQrCodeProgress(false)
-                showQrCodeAndAmountFields(pair)
-            }
-        }.execute(invoiceStatus)
+    private fun showQrCodeAndAmountFields(i: InvoiceStatus, bitmap: Bitmap) {
+        val f = AmountUtil(activity)
+        tvFiatAmount.text = f.formatFiat(i.fiatTotal)
+        tvFiatAmount.visibility = View.VISIBLE
+        tvBtcAmount.text = f.formatBch(i.totalBchAmount.toDouble())
+        ivReceivingQr.setImageBitmap(bitmap)
+        initiateCountdown(i)
     }
 
     private fun getTimeLimit(invoiceStatus: InvoiceStatus): Long {
@@ -398,6 +356,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
     }
 
     private fun showCheckMark() {
+        tvConnectionStatus.visibility = View.GONE // hide it white top bar on green background
         waitingLayout.visibility = View.GONE
         receivedLayout.visibility = View.VISIBLE
         AppUtil.setStatusBarColor(activity, R.color.bitcoindotcom_green)
