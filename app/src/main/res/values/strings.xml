@@ -50,7 +50,9 @@
     <string name="settings_local_currency">Local Currency</string>
     <string name="settings_pin_code">PIN Code</string>
     <string name="ad_title_local_bitcoin_cash">Local Bitcoin Cash</string>
-    <string name="ad_content_local_bitcoin_cash">Sell your Bitcoin Cash (BCH) for Cash</string>
+    <string name="ad_content_local_bitcoin_cash">Sell your Bitcoin Cash for Cash</string>
+    <string name="ad_content_bitcoincom_exchange">50+ trading pairs and SLP token support</string>
+    <string name="ad_content_bitcoincom_wallet">Store, exchange, buy, and sell Bitcoin with the fastest wallet ever.</string>
     <string name="not_supported">Not supported</string>
     <string name="grant_camera_permission">Please grant camera permission to use the QR code Scanner</string>
     <string name="view_transaction">View transaction</string>

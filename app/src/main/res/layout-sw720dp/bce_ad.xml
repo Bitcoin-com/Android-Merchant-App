@@ -37,7 +37,7 @@
             android:layout_width="225dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:text="50+ trading pairs and SLP token support"
+            android:text="@string/ad_content_bitcoincom_exchange"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
