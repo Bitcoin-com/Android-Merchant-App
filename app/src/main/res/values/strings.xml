@@ -70,4 +70,5 @@
     <string name="contract_button_ok">I agree</string>
     <string name="error">Error</string>
     <string name="notify_changes_have_been_saved">Change has been saved</string>
+    <string name="share_invoice_npe">The invoice cannot be shared yet.</string>
 </resources>
