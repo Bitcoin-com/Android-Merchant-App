@@ -21,7 +21,7 @@ Other features include:
 Why accept Bitcoin Cash?
 - Say goodbye to credit card fees! Bitcoin Cash costs absolutely nothing to receive
 - Customers pay less than a penny in transaction fees to send
-- No registration is required to accept BCH. Just download a free, open-source wallet, like the official Bitcoin.com Bitcoin Wallet
+- No registration is required to accept BCH. Just download a free wallet, like the official Bitcoin.com Bitcoin Wallet
 - No one can freeze your wallet
 - No one can seize your funds
 - No one can block your payments
