@@ -54,9 +54,11 @@
         android:layout_height="0dp"
         android:gravity="center"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/iv_cancel"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:padding="35dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_cancel">
 
         <TextView
             android:id="@+id/tv_fiat_amount"
@@ -81,7 +83,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="25dp" />
+            android:layout_height="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,7 +91,7 @@
             android:clipToPadding="false"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="25dp"
+            android:padding="4dp"
             android:stateListAnimator="@null">
 
             <ImageView
@@ -122,7 +124,7 @@
                 android:id="@+id/bip70_timer_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center"
                 android:text="15:00"
                 android:textColor="@color/bitcoindotcom_green"
