@@ -1,111 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <Space
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_centerInParent="true"
-        android:layout_weight="1"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/pin_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal"
-                android:paddingTop="24dp">
-
-                <TextView
-                    android:id="@+id/pinBox0"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
-                    android:layout_margin="10dip" />
-
-                <TextView
-                    android:id="@+id/pinBox1"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
-                    android:layout_margin="10dip" />
-
-                <TextView
-                    android:id="@+id/pinBox2"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
-                    android:layout_margin="10dip" />
-
-                <TextView
-                    android:id="@+id/pinBox3"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
-                    android:layout_margin="10dip" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal"
-                android:paddingBottom="5dp">
-
-                <TextView
-                    android:layout_width="48dip"
-                    android:layout_height="2.5dip"
-                    android:layout_margin="10dip"
-                    android:background="@color/gray" />
-
-                <TextView
-                    android:layout_width="48dip"
-                    android:layout_height="2.5dip"
-                    android:layout_margin="10dip"
-                    android:background="@color/gray" />
-
-                <TextView
-                    android:layout_width="48dip"
-                    android:layout_height="2.5dip"
-                    android:layout_margin="10dip"
-                    android:background="@color/gray" />
-
-                <TextView
-                    android:layout_width="48dip"
-                    android:layout_height="2.5dip"
-                    android:layout_margin="10dip"
-                    android:background="@color/gray" />
-
-            </LinearLayout>
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingTop="16dp">
 
             <TextView
-                android:id="@+id/titleBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:gravity="center"
-                android:padding="10dip"
-                android:text="@string/enter_pin"
-                android:textColor="@color/gray"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:id="@+id/pinBox0"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_margin="10dip" />
+
+            <TextView
+                android:id="@+id/pinBox1"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_margin="10dip" />
+
+            <TextView
+                android:id="@+id/pinBox2"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_margin="10dip" />
+
+            <TextView
+                android:id="@+id/pinBox3"
+                android:layout_width="48dip"
+                android:layout_height="48dip"
+                android:layout_margin="10dip" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingBottom="5dp">
+
+            <TextView
+                android:layout_width="48dip"
+                android:layout_height="2.5dip"
+                android:layout_margin="10dip"
+                android:background="@color/gray" />
+
+            <TextView
+                android:layout_width="48dip"
+                android:layout_height="2.5dip"
+                android:layout_margin="10dip"
+                android:background="@color/gray" />
+
+            <TextView
+                android:layout_width="48dip"
+                android:layout_height="2.5dip"
+                android:layout_margin="10dip"
+                android:background="@color/gray" />
+
+            <TextView
+                android:layout_width="48dip"
+                android:layout_height="2.5dip"
+                android:layout_margin="10dip"
+                android:background="@color/gray" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/titleBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dip"
+            android:text="@string/enter_pin"
+            android:textColor="@color/gray"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <include
+        android:id="@+id/keypad"
         layout="@layout/include_pin_keypad"
         android:layout_width="330dp"
-        android:layout_height="350dp"
+        android:layout_height="348dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="50dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0"
+        app:constraint_referenced_ids="pin_container, keypad"
+        app:flow_wrapMode="chain" />
 
 </LinearLayout>

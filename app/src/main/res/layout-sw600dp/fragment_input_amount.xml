@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout4"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:padding="35dp">
+    android:background="@color/white">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayout5"
+        android:layout_width="954dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/include4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,35 +61,44 @@
             android:textColor="@color/textColorPrimary"
             android:textSize="16sp" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp" />
-
     </LinearLayout>
 
     <include
+        android:id="@+id/include4"
         layout="@layout/include_numeric_keypad"
-        android:layout_width="330dp"
-        android:layout_height="350dp"
-        android:layout_gravity="center" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="40dp" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/iv_charge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="530dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
+        app:layout_constraintWidth_max="500dp" />
 
     <Button
         android:id="@+id/iv_charge"
-        android:layout_width="330dp"
-        android:layout_height="55dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="5dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
         android:background="@drawable/button_rounded_green"
+        android:stateListAnimator="@null"
         android:text="@string/confirm_request"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:stateListAnimator="@null"/>
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/include4"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@id/include4"
+        app:layout_constraintTop_toBottomOf="@+id/include4"
+        app:layout_constraintWidth_max="300dp"
+        app:layout_constraintWidth_min="250dp" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
