@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout4"
+    android:id="@+id/inputAmountConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
@@ -10,15 +9,16 @@
 
     <LinearLayout
         android:id="@+id/linearLayout5"
-        android:layout_width="954dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/include4"
+        app:layout_constraintBottom_toTopOf="@+id/inputLinearLayout"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/flow"
+        app:layout_constraintWidth_max="954dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,42 +63,65 @@
 
     </LinearLayout>
 
-    <include
-        android:id="@+id/include4"
-        layout="@layout/include_numeric_keypad"
+    <LinearLayout
+        android:id="@+id/inputLinearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+
+        <include
+            android:id="@+id/include4"
+            layout="@layout/include_numeric_keypad"
+            android:layout_width="500dp"
+            android:layout_height="350dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:adjustViewBounds="true"
+            app:layout_constrainedHeight="true" />
+
+        <Button
+            android:id="@+id/iv_charge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/button_rounded_green"
+            android:stateListAnimator="@null"
+            android:text="@string/confirm_request"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:id="@+id/flow"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:adjustViewBounds="true"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@+id/iv_charge"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_max="530dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
-        app:layout_constraintWidth_max="500dp" />
-
-    <Button
-        android:id="@+id/iv_charge"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/button_rounded_green"
-        android:stateListAnimator="@null"
-        android:text="@string/confirm_request"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constrainedWidth="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:orientation="vertical"
+        app:constraint_referenced_ids="linearLayout5, inputLinearLayout"
+        app:flow_horizontalAlign="center"
+        app:flow_verticalAlign="center"
+        app:flow_verticalGap="16dp"
+        app:flow_wrapMode="chain"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/include4"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/include4"
-        app:layout_constraintTop_toBottomOf="@+id/include4"
-        app:layout_constraintWidth_max="300dp"
-        app:layout_constraintWidth_min="250dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
