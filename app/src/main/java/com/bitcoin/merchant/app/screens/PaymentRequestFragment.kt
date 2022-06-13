@@ -358,7 +358,8 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
                 // then addresses can be reused. Address reuse is not an issue
                 // because the BIP-70 server is the one only broadcasting the TX to that address
                 // and thus it is aware of which invoice is being paid without possible confusion
-                i.address = app.wallet.getAddressFromXPubAndMoveToNext()
+                val address = app.wallet.getAddressFromXPubAndMoveToNext()
+                i.address = AddressUtil.toCashAddress(address)
                 Log.i(TAG, "BCH-address(xPub) to receive: " + i.address)
             } catch (e: Exception) {
                 Analytics.error_generate_address_from_xpub.sendError(e)
