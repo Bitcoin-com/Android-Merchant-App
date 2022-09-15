@@ -259,6 +259,7 @@ open class MainActivity : AppCompatActivity(), WebSocketListener {
                 if (!payment.isUnderpayment && !payment.isOverpayment) {
                     Log.d(TAG, "${payment.txHash} has been received.")
                     val i = Intent(Action.ACKNOWLEDGE_BIP21_PAYMENT)
+                    payment.toIntent(i)
                     LocalBroadcastManager.getInstance(this).sendBroadcast(i)
                 } else {
                     if (payment.isUnderpayment) {

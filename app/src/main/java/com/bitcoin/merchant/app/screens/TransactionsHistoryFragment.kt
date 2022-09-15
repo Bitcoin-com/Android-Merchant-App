@@ -18,11 +18,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bitcoin.merchant.app.R
+import com.bitcoin.merchant.app.database.PaymentRecord
 import com.bitcoin.merchant.app.database.toPaymentRecord
 import com.bitcoin.merchant.app.model.Analytics
 import com.bitcoin.merchant.app.screens.features.ToolbarAwareFragment
 import com.bitcoin.merchant.app.util.DateUtil
 import com.bitcoin.merchant.app.util.MonetaryUtil
+import com.bitcoin.merchant.app.util.ReceiptUtil
 import com.bitcoin.merchant.app.util.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -104,13 +106,15 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         val paymentRecord = adapter.mListItems[item.toInt()].toPaymentRecord()
         val txId = paymentRecord.tx ?: ""
         val emojiLink = String(Character.toChars(0x1F517))
+        val emojiReceipt = String(Character.toChars(0x1F9FE))
         val emojiClipboard = String(Character.toChars(0x1F4CB))
         val builder = AlertDialog.Builder(activity)
         builder.setTitle("${paymentRecord.fiatAmount} - ${Date(paymentRecord.timeInSec*1000)}")
         builder.setIcon(R.mipmap.ic_launcher)
         builder.setItems(arrayOf<CharSequence>(
                 "$emojiLink ${getString(R.string.inspect_tx_link_view_transaction)}",
-                "$emojiClipboard ${getString(R.string.inspect_tx_copy_transaction)}")
+                "$emojiClipboard ${getString(R.string.inspect_tx_copy_transaction)}",
+                "$emojiReceipt ${getString(R.string.inspect_tx_print_receipt)}")
         ) { dialog: DialogInterface, which: Int ->
             dialog.dismiss()
             when (which) {
@@ -120,9 +124,15 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             when (which) {
                 0 -> openExplorer(getString(R.string.url_explorer_bitcoin_com) + "/bch/tx/$txId")
                 1 -> copyToClipboard(txId)
+                2 -> printReceipt(paymentRecord)
             }
         }
         builder.create().show()
+    }
+
+    private fun printReceipt(paymentRecord: PaymentRecord) {
+        val receiptHtml = ReceiptUtil.createReceiptHtml(activity, paymentRecord)
+        ReceiptUtil.printReceipt(activity, receiptHtml)
     }
 
     private fun openExplorer(uri: String) {

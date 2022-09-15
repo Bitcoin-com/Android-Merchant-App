@@ -182,6 +182,19 @@
             android:minHeight="100dp" />
 
         <Button
+            android:id="@+id/iv_receipt"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/button_rounded"
+            android:text="@string/button_receipt"
+            android:textAllCaps="false"
+            android:textColor="@color/bitcoindotcom_green"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"/>
+
+        <Button
             android:id="@+id/iv_done"
             android:layout_width="match_parent"
             android:layout_height="55dp"

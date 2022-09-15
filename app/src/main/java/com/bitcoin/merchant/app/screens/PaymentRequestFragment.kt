@@ -28,6 +28,7 @@ import com.bitcoin.merchant.app.currency.CurrencyExchange
 import com.bitcoin.merchant.app.model.Analytics
 import com.bitcoin.merchant.app.model.PaymentTarget
 import com.bitcoin.merchant.app.network.ExpectedPayments
+import com.bitcoin.merchant.app.network.PaymentReceived
 import com.bitcoin.merchant.app.screens.dialogs.DialogHelper
 import com.bitcoin.merchant.app.screens.dialogs.SnackHelper
 import com.bitcoin.merchant.app.screens.features.ToolbarAwareFragment
@@ -65,6 +66,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
     private lateinit var ivReceivingQr: ImageView
     private lateinit var progressLayout: LinearLayout
     private lateinit var ivCancel: ImageView
+    private lateinit var ivReceipt: Button
     private lateinit var ivDone: Button
     private lateinit var bip70Manager: Bip70Manager
     private lateinit var bip70PayService: Bip70PayService
@@ -89,7 +91,9 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
                 bip70Manager.reconnectIfNecessary()
             }
             if (Action.ACKNOWLEDGE_BIP21_PAYMENT == intent.action) {
-                showCheckMark()
+                val paymentReceived = PaymentReceived(intent)
+                val receiptHtml = ReceiptUtil.createReceiptHtml(activity, paymentReceived)
+                showCheckMark(receiptHtml)
                 soundAlert()
             }
         }
@@ -126,7 +130,8 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         Log.i(TAG, "record new Tx:$i")
         val fiatFormatted = AmountUtil(activity).formatFiat(i.fiatTotal)
         app.paymentProcessor.recordInDatabase(i, fiatFormatted)
-        showCheckMark()
+        val receiptHtml = ReceiptUtil.createReceiptHtml(activity, i)
+        showCheckMark(receiptHtml)
         soundAlert()
     }
 
@@ -299,6 +304,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         waitingLayout = v.findViewById(R.id.layout_waiting)
         receivedLayout = v.findViewById(R.id.layout_complete)
         ivCancel = v.findViewById(R.id.iv_cancel)
+        ivReceipt = v.findViewById(R.id.iv_receipt)
         ivDone = v.findViewById(R.id.iv_done)
         fabShare = v.findViewById(R.id.fab_share)
         ivCancel.setOnClickListener { deleteActiveInvoiceAndExitScreen() }
@@ -495,7 +501,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         }.start()
     }
 
-    private fun showCheckMark() {
+    private fun showCheckMark(receiptHtml: String) {
         tvConnectionStatus.visibility = View.GONE // hide it white top bar on green background
         waitingLayout.visibility = View.GONE
         receivedLayout.visibility = View.VISIBLE
@@ -505,11 +511,15 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         if(bip21Address != null) {
             ExpectedPayments.getInstance().removePayment(bip21Address)
         }
+        ivReceipt.setOnClickListener {
+            ReceiptUtil.printReceipt(activity, receiptHtml)
+        }
         ivDone.setOnClickListener {
             AppUtil.setStatusBarColor(activity, R.color.gray)
             exitScreen()
         }
     }
+
 
     private fun setInvoiceReadyToShare(ready: Boolean) {
         if (ready) {

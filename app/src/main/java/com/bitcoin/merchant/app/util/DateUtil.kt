@@ -40,6 +40,10 @@ class DateUtil private constructor() {
         }
     }
 
+    fun formatHistorical(timeInMillis: Long): String {
+        return pastYearsFormat.format(timeInMillis)
+    }
+
     companion object {
         val instance: DateUtil by lazy { DateUtil() }
     }
