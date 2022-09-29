@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.*
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -38,6 +39,12 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     private lateinit var adapter: TransactionAdapter
     private lateinit var listView: ListView
     private lateinit var noTxHistoryLv: LinearLayout
+    private lateinit var dateFilterArea: ViewGroup
+    private lateinit var startDateButton: Button
+    private lateinit var endDateButton: Button
+    private lateinit var datePicker: DatePicker
+    private lateinit var timePicker: TimePicker
+    private lateinit var dateTimeSaveButton: Button
     private lateinit var swipeLayout: SwipeRefreshLayout
     private val fragmentBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -48,6 +55,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     }
     @Volatile
     private var ready = false
+    private var startDateTime: Long = 0
+    private var endDateTime: Long = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -79,6 +88,12 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         adapter = TransactionAdapter()
         listView = rootView.findViewById(R.id.txList)
         noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv)
+        dateFilterArea = rootView.findViewById(R.id.dateFilterArea)
+        startDateButton = rootView.findViewById(R.id.startDateButton)
+        endDateButton = rootView.findViewById(R.id.endDateButton)
+        datePicker = rootView.findViewById(R.id.datePicker)
+        timePicker = rootView.findViewById(R.id.timePicker)
+        dateTimeSaveButton = rootView.findViewById(R.id.dateTimeSaveButton)
         listView.adapter = adapter
         listView.setOnItemClickListener { _, _, _, id -> showTransactionMenu(id) }
         listView.setOnScrollListener(object : AbsListView.OnScrollListener {
@@ -90,10 +105,28 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             }
         })
         setTxListVisibility(adapter.count > 0)
+        startDateButton.setOnClickListener {
+            getDateTime(0, 0, startDateTime, object : DateTimeCallback {
+                override fun invoke(timeInMillis: Long) {
+                    startDateTime = timeInMillis
+                    startDateButton.text = DateUtil.instance.format(timeInMillis)
+                }
+            })
+        }
+        endDateButton.setOnClickListener {
+            getDateTime(23, 59, endDateTime, object : DateTimeCallback {
+                override fun invoke(timeInMillis: Long) {
+                    endDateTime = timeInMillis
+                    endDateButton.text = DateUtil.instance.format(timeInMillis)
+                }
+            })
+        }
     }
 
     private fun setTxListVisibility(enabled: Boolean) {
-        listView.visibility = if (enabled) View.VISIBLE else View.GONE
+        val listVisibility = if (enabled) View.VISIBLE else View.GONE
+        listView.visibility = listVisibility
+        dateFilterArea.visibility = listVisibility
         noTxHistoryLv.visibility = if (enabled) View.GONE else View.VISIBLE
     }
 
@@ -143,6 +176,65 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("Source Text", text)
         clipboardManager.setPrimaryClip(clipData)
+    }
+
+    private interface DateTimeCallback {
+        fun invoke(timeInMillis: Long)
+    }
+
+    private fun getDateTime(initialHour: Int, initialMinute: Int, currentTime: Long, callback: DateTimeCallback) {
+        val now = Calendar.getInstance()
+        var defaultYear = now.get(Calendar.YEAR)
+        var defaultMonth = now.get(Calendar.MONTH)
+        var defaultDay = now.get(Calendar.DAY_OF_MONTH)
+        var defaultHour = initialHour
+        var defaultMinute = initialMinute
+        if (currentTime != 0L) {
+            val calendar = Calendar.getInstance()
+            calendar.setTime(Date(currentTime))
+            defaultYear = calendar.get(Calendar.YEAR)
+            defaultMonth = calendar.get(Calendar.MONTH)
+            defaultDay = calendar.get(Calendar.DAY_OF_MONTH)
+            defaultHour = calendar.get(Calendar.HOUR)
+            defaultMinute = calendar.get(Calendar.MINUTE)
+        }
+
+        datePicker.visibility = View.VISIBLE
+        timePicker.visibility = View.GONE
+        dateTimeSaveButton.visibility = View.VISIBLE
+
+        datePicker.init(defaultYear, defaultMonth, defaultDay, null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            timePicker.hour = defaultHour
+            timePicker.minute = defaultMinute
+        }
+        else {
+            timePicker.currentHour = defaultHour
+            timePicker.currentMinute = defaultMinute
+        }
+
+        dateTimeSaveButton.setOnClickListener {
+            // switch from date to time
+            timePicker.visibility = View.VISIBLE
+            datePicker.visibility = View.GONE
+            dateTimeSaveButton.setOnClickListener {
+                val newTime = Calendar.getInstance()
+                newTime.set(Calendar.YEAR, datePicker.year)
+                newTime.set(Calendar.MONTH, datePicker.month)
+                newTime.set(Calendar.DAY_OF_MONTH, datePicker.dayOfMonth)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    newTime.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                    newTime.set(Calendar.MINUTE, timePicker.minute)
+                }
+                else {
+                    newTime.set(Calendar.HOUR_OF_DAY, timePicker.currentHour)
+                    newTime.set(Calendar.MINUTE, timePicker.currentMinute)
+                }
+                timePicker.visibility = View.GONE
+                dateTimeSaveButton.visibility = View.GONE
+                callback.invoke(newTime.timeInMillis)
+            }
+        }
     }
 
     // view not yet created

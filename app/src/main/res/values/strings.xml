@@ -86,4 +86,7 @@
     <string name="out_of_date_fiat_rates">Exchange rates are out of date. Updating…</string>
     <string name="disconnected">Disconnected</string>
     <string name="button_receipt">Receipt</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="empty_date_string">---</string>
 </resources>
