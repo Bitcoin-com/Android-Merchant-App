@@ -13,7 +13,7 @@
         <RelativeLayout
             android:id="@+id/dateFilterArea"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="72dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp">
 
@@ -97,6 +97,8 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/dateSelectionArea"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -104,7 +106,6 @@
 
             <DatePicker
                 android:id="@+id/datePicker"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"/>
@@ -116,15 +117,32 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center" />
 
-            <Button
-                android:id="@+id/dateTimeSaveButton"
-                android:visibility="gone"
-                android:background="@drawable/button_rounded_green"
-                android:textColor="@color/white"
-                android:text="@string/button_save"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/dateTimeClearButton"
+                    android:background="@drawable/button_rounded"
+                    android:layout_weight="3"
+                    android:textColor="@color/red"
+                    android:text="@string/button_clear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp" />
+
+                <Button
+                    android:id="@+id/dateTimeSaveButton"
+                    android:background="@drawable/button_rounded_green"
+                    android:layout_weight="1"
+                    android:textColor="@color/white"
+                    android:text="@string/button_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -53,6 +53,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     private lateinit var allButton: Button
     private lateinit var datePicker: DatePicker
     private lateinit var timePicker: TimePicker
+    private lateinit var dateSelectionArea: ViewGroup
+    private lateinit var dateTimeClearButton: Button
     private lateinit var dateTimeSaveButton: Button
     private lateinit var swipeLayout: SwipeRefreshLayout
     private val fragmentBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -94,19 +96,25 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     }
 
     private fun initListView(rootView: View) {
-        adapter = TransactionAdapter()
-        listView = rootView.findViewById(R.id.txList)
-        noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv)
+        // date filters
         dateFilterArea = rootView.findViewById(R.id.dateFilterArea)
         startDateButton = rootView.findViewById(R.id.startDateButton)
         endDateButton = rootView.findViewById(R.id.endDateButton)
+        // date presets
         datePresetArea = rootView.findViewById(R.id.datePresetArea)
         todayButton = rootView.findViewById(R.id.todayButton)
         yesterdayButton = rootView.findViewById(R.id.yesterdayButton)
         allButton = rootView.findViewById(R.id.allButton)
+        // date selection
+        dateSelectionArea = rootView.findViewById(R.id.dateSelectionArea)
         datePicker = rootView.findViewById(R.id.datePicker)
         timePicker = rootView.findViewById(R.id.timePicker)
+        dateTimeClearButton = rootView.findViewById(R.id.dateTimeClearButton)
         dateTimeSaveButton = rootView.findViewById(R.id.dateTimeSaveButton)
+        // transactions
+        adapter = TransactionAdapter()
+        listView = rootView.findViewById(R.id.txList)
+        noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv)
         listView.adapter = adapter
         listView.setOnItemClickListener { _, _, _, id -> showTransactionMenu(id) }
         listView.setOnScrollListener(object : AbsListView.OnScrollListener {
@@ -121,20 +129,14 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         startDateButton.setOnClickListener {
             getDateTime(0, 0, 0, startDateTime, object : DateTimeCallback {
                 override fun invoke(timeInMillis: Long) {
-                    startDateTime = timeInMillis
-                    startDateButton.text = DateUtil.instance.format(timeInMillis)
-                    setSelectedDatePreset(null)
-                    adapter.filter()
+                    enterDateRange(null, timeInMillis, endDateTime)
                 }
             })
         }
         endDateButton.setOnClickListener {
             getDateTime(23, 59, 59, endDateTime, object : DateTimeCallback {
                 override fun invoke(timeInMillis: Long) {
-                    endDateTime = timeInMillis
-                    endDateButton.text = DateUtil.instance.format(timeInMillis)
-                    setSelectedDatePreset(null)
-                    adapter.filter()
+                    enterDateRange(null, startDateTime, timeInMillis)
                 }
             })
         }
@@ -148,7 +150,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             time.set(Calendar.MINUTE, 59)
             time.set(Calendar.SECOND, 59)
             val endTime = time.timeInMillis
-            selectDatePresent(todayButton, startTime, endTime)
+            enterDateRange(todayButton, startTime, endTime)
         }
         yesterdayButton.setOnClickListener {
             val time = Calendar.getInstance() // today
@@ -161,15 +163,15 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             time.set(Calendar.MINUTE, 59)
             time.set(Calendar.SECOND, 59)
             val endTime = time.timeInMillis
-            selectDatePresent(yesterdayButton, startTime, endTime)
+            enterDateRange(yesterdayButton, startTime, endTime)
         }
         allButton.setOnClickListener {
-            selectDatePresent(allButton, 0L, 0L)
+            enterDateRange(allButton, 0L, 0L)
         }
     }
 
-    private fun selectDatePresent(button: Button, newStartTime: Long, newEndTime: Long) {
-        setSelectedDatePreset(button)
+    private fun enterDateRange(presetButton: Button?, newStartTime: Long, newEndTime: Long) {
+        setSelectedDatePreset(presetButton)
 
         startDateTime = newStartTime
         val startString = if (newStartTime == 0L) getString(R.string.empty_date_string) else DateUtil.instance.format(newStartTime)
@@ -178,6 +180,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         endDateTime = newEndTime
         val endString = if (newEndTime == 0L) getString(R.string.empty_date_string) else DateUtil.instance.format(newEndTime)
         endDateButton.text = endString
+
+        dateSelectionArea.visibility = View.GONE
 
         adapter.filter()
     }
@@ -204,6 +208,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         val listVisibility = if (enabled) View.VISIBLE else View.GONE
         listView.visibility = listVisibility
         dateFilterArea.visibility = listVisibility
+        datePresetArea.visibility = listVisibility
+        dateSelectionArea.visibility = View.GONE
         noTxHistoryLv.visibility = if (enabled) View.GONE else View.VISIBLE
     }
 
@@ -278,7 +284,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
 
         datePicker.visibility = View.VISIBLE
         timePicker.visibility = View.GONE
-        dateTimeSaveButton.visibility = View.VISIBLE
+        dateSelectionArea.visibility = View.VISIBLE
 
         datePicker.init(defaultYear, defaultMonth, defaultDay, null)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -308,10 +314,13 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
                     newTime.set(Calendar.MINUTE, timePicker.currentMinute)
                 }
                 newTime.set(Calendar.SECOND, seconds)
-                timePicker.visibility = View.GONE
-                dateTimeSaveButton.visibility = View.GONE
+                dateSelectionArea.visibility = View.GONE
                 callback.invoke(newTime.timeInMillis)
             }
+        }
+        dateTimeClearButton.setOnClickListener {
+            dateSelectionArea.visibility = View.GONE
+            callback.invoke(0L)
         }
     }
 

@@ -8,6 +8,8 @@
     <color name="gray">#A0A0A0</color>
     <color name="white_50">#80ffffff</color>
 
+    <color name="red">#f00</color>
+
     <color name="dropshadow_grey">#CCCCCC</color>
 
     <color name="snack_error_background">#C00000</color>

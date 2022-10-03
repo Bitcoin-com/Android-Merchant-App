@@ -40,6 +40,7 @@
     <string name="options_explain_multiterminal">For merchants using the same address across multiple terminals</string>
     <string name="options_multiterminal">Enable/disable Multi-terminal</string>
     <string name="button_save">Save</string>
+    <string name="button_clear">Clear</string>
     <string name="payment_enter_an_amount">Enter an amount</string>
     <string name="menu_profile">Profile</string>
     <string name="menu_cash_register">Cash Register</string>
