@@ -2,6 +2,7 @@ package com.bitcoin.merchant.app.screens
 
 import android.app.AlertDialog
 import android.content.*
+import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -15,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -27,12 +29,15 @@ import com.bitcoin.merchant.app.util.DateUtil
 import com.bitcoin.merchant.app.util.MonetaryUtil
 import com.bitcoin.merchant.app.util.ReceiptUtil
 import com.bitcoin.merchant.app.util.Settings
+import kotlinx.android.synthetic.main.fragment_transaction.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import org.bitcoindotcom.bchprocessor.bip70.model.Bip70Action
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 class TransactionsHistoryFragment : ToolbarAwareFragment() {
@@ -42,6 +47,10 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     private lateinit var dateFilterArea: ViewGroup
     private lateinit var startDateButton: Button
     private lateinit var endDateButton: Button
+    private lateinit var datePresetArea: ViewGroup
+    private lateinit var todayButton: Button
+    private lateinit var yesterdayButton: Button
+    private lateinit var allButton: Button
     private lateinit var datePicker: DatePicker
     private lateinit var timePicker: TimePicker
     private lateinit var dateTimeSaveButton: Button
@@ -91,6 +100,10 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         dateFilterArea = rootView.findViewById(R.id.dateFilterArea)
         startDateButton = rootView.findViewById(R.id.startDateButton)
         endDateButton = rootView.findViewById(R.id.endDateButton)
+        datePresetArea = rootView.findViewById(R.id.datePresetArea)
+        todayButton = rootView.findViewById(R.id.todayButton)
+        yesterdayButton = rootView.findViewById(R.id.yesterdayButton)
+        allButton = rootView.findViewById(R.id.allButton)
         datePicker = rootView.findViewById(R.id.datePicker)
         timePicker = rootView.findViewById(R.id.timePicker)
         dateTimeSaveButton = rootView.findViewById(R.id.dateTimeSaveButton)
@@ -106,20 +119,84 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         })
         setTxListVisibility(adapter.count > 0)
         startDateButton.setOnClickListener {
-            getDateTime(0, 0, startDateTime, object : DateTimeCallback {
+            getDateTime(0, 0, 0, startDateTime, object : DateTimeCallback {
                 override fun invoke(timeInMillis: Long) {
                     startDateTime = timeInMillis
                     startDateButton.text = DateUtil.instance.format(timeInMillis)
+                    setSelectedDatePreset(null)
+                    adapter.filter()
                 }
             })
         }
         endDateButton.setOnClickListener {
-            getDateTime(23, 59, endDateTime, object : DateTimeCallback {
+            getDateTime(23, 59, 59, endDateTime, object : DateTimeCallback {
                 override fun invoke(timeInMillis: Long) {
                     endDateTime = timeInMillis
                     endDateButton.text = DateUtil.instance.format(timeInMillis)
+                    setSelectedDatePreset(null)
+                    adapter.filter()
                 }
             })
+        }
+        todayButton.setOnClickListener {
+            val time = Calendar.getInstance() // today
+            time.set(Calendar.HOUR_OF_DAY, 0)
+            time.set(Calendar.MINUTE, 0)
+            time.set(Calendar.SECOND, 0)
+            val startTime = time.timeInMillis
+            time.set(Calendar.HOUR_OF_DAY, 23)
+            time.set(Calendar.MINUTE, 59)
+            time.set(Calendar.SECOND, 59)
+            val endTime = time.timeInMillis
+            selectDatePresent(todayButton, startTime, endTime)
+        }
+        yesterdayButton.setOnClickListener {
+            val time = Calendar.getInstance() // today
+            time.add(Calendar.DAY_OF_MONTH, -1) // yesterday
+            time.set(Calendar.HOUR_OF_DAY, 0)
+            time.set(Calendar.MINUTE, 0)
+            time.set(Calendar.SECOND, 0)
+            val startTime = time.timeInMillis
+            time.set(Calendar.HOUR_OF_DAY, 23)
+            time.set(Calendar.MINUTE, 59)
+            time.set(Calendar.SECOND, 59)
+            val endTime = time.timeInMillis
+            selectDatePresent(yesterdayButton, startTime, endTime)
+        }
+        allButton.setOnClickListener {
+            selectDatePresent(allButton, 0L, 0L)
+        }
+    }
+
+    private fun selectDatePresent(button: Button, newStartTime: Long, newEndTime: Long) {
+        setSelectedDatePreset(button)
+
+        startDateTime = newStartTime
+        val startString = if (newStartTime == 0L) getString(R.string.empty_date_string) else DateUtil.instance.format(newStartTime)
+        startDateButton.text = startString
+
+        endDateTime = newEndTime
+        val endString = if (newEndTime == 0L) getString(R.string.empty_date_string) else DateUtil.instance.format(newEndTime)
+        endDateButton.text = endString
+
+        adapter.filter()
+    }
+
+    private fun setSelectedDatePreset(selectedButton: Button?) {
+        val white = ContextCompat.getColor(requireContext(), R.color.white)
+        val green = ContextCompat.getColor(requireContext(), R.color.bitcoindotcom_green)
+        val black = Color.BLACK
+
+        todayButton.setBackgroundColor(white)
+        todayButton.setTextColor(black)
+        yesterdayButton.setBackgroundColor(white)
+        yesterdayButton.setTextColor(black)
+        allButton.setBackgroundColor(white)
+        allButton.setTextColor(black)
+
+        if (selectedButton != null) {
+            selectedButton.setBackgroundColor(green)
+            selectedButton.setTextColor(white)
         }
     }
 
@@ -182,7 +259,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         fun invoke(timeInMillis: Long)
     }
 
-    private fun getDateTime(initialHour: Int, initialMinute: Int, currentTime: Long, callback: DateTimeCallback) {
+    private fun getDateTime(initialHour: Int, initialMinute: Int, seconds: Int, currentTime: Long, callback: DateTimeCallback) {
         val now = Calendar.getInstance()
         var defaultYear = now.get(Calendar.YEAR)
         var defaultMonth = now.get(Calendar.MONTH)
@@ -230,6 +307,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
                     newTime.set(Calendar.HOUR_OF_DAY, timePicker.currentHour)
                     newTime.set(Calendar.MINUTE, timePicker.currentMinute)
                 }
+                newTime.set(Calendar.SECOND, seconds)
                 timePicker.visibility = View.GONE
                 dateTimeSaveButton.visibility = View.GONE
                 callback.invoke(newTime.timeInMillis)
@@ -274,19 +352,40 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
 
     private inner class TransactionAdapter internal constructor() : BaseAdapter() {
         val mListItems: MutableList<ContentValues> = ArrayList()
+        val mFilteredItems: MutableList<ContentValues> = ArrayList()
         private val inflater: LayoutInflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
         fun reset(values: ArrayList<ContentValues>) {
             mListItems.clear()
             mListItems.addAll(values)
+
+            filterByDateRange()
             notifyDataSetChanged()
         }
 
+        fun filter() {
+            filterByDateRange()
+            notifyDataSetChanged()
+        }
+
+        private fun filterByDateRange() {
+            mFilteredItems.clear()
+            for (item in mListItems) {
+                val timeInSec = item.toPaymentRecord().timeInSec
+                val timeInMillis = TimeUnit.SECONDS.toMillis(timeInSec)
+                val shouldHide = (startDateTime != 0L && timeInMillis < startDateTime) || (endDateTime != 0L && timeInMillis > endDateTime)
+                if (!shouldHide) {
+                    mFilteredItems.add(item)
+                }
+            }
+        }
+
         override fun getCount(): Int {
-            return mListItems.size
+            return mFilteredItems.size
         }
 
         override fun getItem(position: Int): String {
-            return mListItems[position].getAsString("iad")
+            return mFilteredItems[position].getAsString("iad")
         }
 
         override fun getItemId(position: Int): Long {
@@ -297,7 +396,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
             val view = convertView
                     ?: inflater.inflate(R.layout.list_item_transaction, parent, false)
             try {
-                val r = mListItems[position].toPaymentRecord()
+                val r = mFilteredItems[position].toPaymentRecord()
                 setupView(view, r.bchAmount, r.fiatAmount, r.timeInSec, r.confirmations)
             } catch (e: Exception) {
                 Analytics.error_rendering.sendError(e)

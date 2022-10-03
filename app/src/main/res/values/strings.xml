@@ -89,4 +89,7 @@
     <string name="start_date">Start Date</string>
     <string name="end_date">End Date</string>
     <string name="empty_date_string">---</string>
+    <string name="button_today">Today</string>
+    <string name="button_yesterday">Yesterday</string>
+    <string name="button_all">All</string>
 </resources>

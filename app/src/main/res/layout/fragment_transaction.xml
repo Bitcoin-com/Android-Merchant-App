@@ -31,8 +31,8 @@
 
                 <Button
                     android:id="@+id/startDateButton"
-                    android:background="@drawable/button_rounded_green"
-                    android:textColor="@color/white"
+                    android:background="@drawable/button_rounded"
+                    android:layout_margin="2dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/empty_date_string" />
@@ -52,13 +52,49 @@
 
                 <Button
                     android:id="@+id/endDateButton"
-                    android:background="@drawable/button_rounded_green"
-                    android:textColor="@color/white"
+                    android:background="@drawable/button_rounded"
+                    android:layout_margin="2dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/empty_date_string" />
             </LinearLayout>
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/datePresetArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/todayButton"
+                android:background="@drawable/button_rounded"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:text="@string/button_today"
+                android:layout_margin="5dp"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/yesterdayButton"
+                android:background="@drawable/button_rounded"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:text="@string/button_yesterday"
+                android:layout_margin="5dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/allButton"
+                android:background="@drawable/button_rounded"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:text="@string/button_all"
+                android:layout_margin="5dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
