@@ -92,7 +92,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
             }
             if (Action.ACKNOWLEDGE_BIP21_PAYMENT == intent.action) {
                 val paymentReceived = PaymentReceived(intent)
-                val receiptHtml = ReceiptUtil.createReceiptHtml(activity, paymentReceived)
+                val receiptHtml = PrintUtil.createReceiptHtml(activity, paymentReceived)
                 showCheckMark(receiptHtml)
                 soundAlert()
             }
@@ -130,7 +130,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
         Log.i(TAG, "record new Tx:$i")
         val fiatFormatted = AmountUtil(activity).formatFiat(i.fiatTotal)
         app.paymentProcessor.recordInDatabase(i, fiatFormatted)
-        val receiptHtml = ReceiptUtil.createReceiptHtml(activity, i)
+        val receiptHtml = PrintUtil.createReceiptHtml(activity, i)
         showCheckMark(receiptHtml)
         soundAlert()
     }
@@ -512,7 +512,7 @@ class PaymentRequestFragment : ToolbarAwareFragment() {
             ExpectedPayments.getInstance().removePayment(bip21Address)
         }
         ivReceipt.setOnClickListener {
-            ReceiptUtil.printReceipt(activity, receiptHtml)
+            PrintUtil.printHtml(activity, receiptHtml)
         }
         ivDone.setOnClickListener {
             AppUtil.setStatusBarColor(activity, R.color.gray)

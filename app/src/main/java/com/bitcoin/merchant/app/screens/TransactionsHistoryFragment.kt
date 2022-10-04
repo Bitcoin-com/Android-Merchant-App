@@ -27,12 +27,11 @@ import com.bitcoin.merchant.app.model.Analytics
 import com.bitcoin.merchant.app.screens.features.ToolbarAwareFragment
 import com.bitcoin.merchant.app.util.DateUtil
 import com.bitcoin.merchant.app.util.MonetaryUtil
-import com.bitcoin.merchant.app.util.ReceiptUtil
+import com.bitcoin.merchant.app.util.PrintUtil
 import com.bitcoin.merchant.app.util.Settings
-import kotlinx.android.synthetic.main.fragment_transaction.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import org.bitcoindotcom.bchprocessor.bip70.model.Bip70Action
 import java.util.*
@@ -42,7 +41,9 @@ import kotlin.math.abs
 
 class TransactionsHistoryFragment : ToolbarAwareFragment() {
     private lateinit var adapter: TransactionAdapter
+    private lateinit var txListArea: ViewGroup
     private lateinit var listView: ListView
+    private lateinit var printButton: FloatingActionButton
     private lateinit var noTxHistoryLv: LinearLayout
     private lateinit var dateFilterArea: ViewGroup
     private lateinit var startDateButton: Button
@@ -113,7 +114,9 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         dateTimeSaveButton = rootView.findViewById(R.id.dateTimeSaveButton)
         // transactions
         adapter = TransactionAdapter()
+        txListArea = rootView.findViewById(R.id.txListArea)
         listView = rootView.findViewById(R.id.txList)
+        printButton = rootView.findViewById(R.id.printButton)
         noTxHistoryLv = rootView.findViewById(R.id.no_tx_history_lv)
         listView.adapter = adapter
         listView.setOnItemClickListener { _, _, _, id -> showTransactionMenu(id) }
@@ -168,6 +171,10 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
         allButton.setOnClickListener {
             enterDateRange(allButton, 0L, 0L)
         }
+        printButton.setOnClickListener {
+            val reportHtml = PrintUtil.createReportHtml(activity, startDateTime, endDateTime, adapter.mFilteredItems)
+            PrintUtil.printHtml(activity, reportHtml)
+        }
     }
 
     private fun enterDateRange(presetButton: Button?, newStartTime: Long, newEndTime: Long) {
@@ -206,7 +213,7 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
 
     private fun setTxListVisibility(enabled: Boolean) {
         val listVisibility = if (enabled) View.VISIBLE else View.GONE
-        listView.visibility = listVisibility
+        txListArea.visibility = listVisibility
         dateFilterArea.visibility = listVisibility
         datePresetArea.visibility = listVisibility
         dateSelectionArea.visibility = View.GONE
@@ -247,8 +254,8 @@ class TransactionsHistoryFragment : ToolbarAwareFragment() {
     }
 
     private fun printReceipt(paymentRecord: PaymentRecord) {
-        val receiptHtml = ReceiptUtil.createReceiptHtml(activity, paymentRecord)
-        ReceiptUtil.printReceipt(activity, receiptHtml)
+        val receiptHtml = PrintUtil.createReceiptHtml(activity, paymentRecord)
+        PrintUtil.printHtml(activity, receiptHtml)
     }
 
     private fun openExplorer(uri: String) {

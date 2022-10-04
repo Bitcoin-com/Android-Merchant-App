@@ -1,6 +1,7 @@
 package com.bitcoin.merchant.app.util
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.print.PrintAttributes
 import android.print.PrintManager
@@ -9,10 +10,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.bitcoin.merchant.app.R
 import com.bitcoin.merchant.app.database.PaymentRecord
+import com.bitcoin.merchant.app.database.toPaymentRecord
 import com.bitcoin.merchant.app.network.PaymentReceived
 import org.bitcoindotcom.bchprocessor.bip70.model.InvoiceStatus
+import java.util.concurrent.TimeUnit
 
-object ReceiptUtil {
+object PrintUtil {
     fun createReceiptHtml(context: Context, paymentRecord: PaymentRecord): String {
         val txId = paymentRecord.tx.toString()
         val satoshiAmount = paymentRecord.bchAmount
@@ -100,7 +103,75 @@ object ReceiptUtil {
         return builder.toString()
     }
 
-    fun printReceipt(activity: Activity, receiptHtml: String, webView: WebView? = null) {
+    fun createReportHtml(context: Context, startTime: Long, endTime: Long, reportTransactions: MutableList<ContentValues>): String {
+        val merchantName = Settings.getMerchantName(context)
+        val reportTime = DateUtil.instance.formatHistorical(System.currentTimeMillis())
+        var dateRangeString = "All Historical Sales"
+        if (startTime != 0L || endTime != 0L) {
+            val endDateString = if (endTime == 0L) reportTime else DateUtil.instance.formatHistorical(endTime)
+            if (startTime == 0L) {
+                dateRangeString = "All transactions before $endDateString"
+            }
+            else {
+                val startDateString = DateUtil.instance.formatHistorical(startTime)
+                dateRangeString = "$startDateString to $endDateString"
+            }
+        }
+
+        val builder = StringBuilder()
+        builder.append("<html>")
+        builder.append("<head><style>\n")
+        builder.append("body { margin-top: 2em; font-size: 24pt; }\n")
+        builder.append("#merchant-name { font-size: 36pt; }\n")
+        builder.append("#report-time { font-size: 24pt; color: gray; }\n")
+        builder.append("#report-range { font-size: 24pt; margin-top: 2em;}\n")
+        builder.append("table { margin-top: 1em; width: 100%; font-size: 24pt; }\n")
+        builder.append("th, td { padding: 10px; overflow-wrap: break-word; }\n")
+        builder.append("th { text-align: left; }\n")
+        builder.append("</style></head>")
+        builder.append("<body>")
+        builder.append("<div style=\"text-align: center;\">")
+
+        // header
+        builder.append("<div id=\"merchant-name\">")
+        builder.append(merchantName).append(" Sales Report")
+        builder.append("</div>")
+        builder.append("<div id=\"report-time\">")
+        builder.append("Generated at ").append(reportTime)
+        builder.append("</div>")
+
+        builder.append("<div id=\"transaction-area\">")
+        builder.append("<div id=\"report-range\">").append(dateRangeString).append("</div>")
+        builder.append("<table>")
+        builder.append("<tr><th>Sale Time</th><th>BCH Amount</th><th>Fiat Equiv.</th></tr>")
+        var totalBch = 0L
+        for (transaction in reportTransactions) {
+            val paymentRecord = transaction.toPaymentRecord()
+            val txTimeInMillis = TimeUnit.SECONDS.toMillis(paymentRecord.timeInSec)
+            builder.append("<tr>")
+            builder.append("<td>")
+            builder.append(DateUtil.instance.formatHistorical(txTimeInMillis))
+            builder.append("</td>")
+            builder.append("<td>")
+            builder.append(AmountUtil(context).satsToBch(paymentRecord.bchAmount))
+            builder.append("</td>")
+            builder.append("<td>")
+            builder.append(paymentRecord.fiatAmount)
+            builder.append("</td>")
+            builder.append("</tr>")
+            totalBch += paymentRecord.bchAmount
+        }
+        val totalBchString = AmountUtil(context).satsToBch(totalBch)
+        builder.append("<tr><th>Total</th><th>$totalBchString</th><th></th></tr>")
+        builder.append("</table>")
+        builder.append("</div>")
+
+        builder.append("</div>")
+        builder.append("</body></html>")
+        return builder.toString()
+    }
+
+    fun printHtml(activity: Activity, receiptHtml: String, webView: WebView? = null) {
         // Create a WebView object specifically for printing
         val targetWebView = webView ?: WebView(activity)
 
@@ -108,14 +179,14 @@ object ReceiptUtil {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest) = false
 
             override fun onPageFinished(view: WebView, url: String) {
-                createReceiptPrintJob(activity, view)
+                createPrintJob(activity, view)
             }
         }
 
         targetWebView.loadDataWithBaseURL(null, receiptHtml, "text/HTML", "UTF-8", null)
     }
 
-    private fun createReceiptPrintJob(activity: Activity, webView: WebView) {
+    private fun createPrintJob(activity: Activity, webView: WebView) {
         // Get a PrintManager instance
         (activity.getSystemService(Context.PRINT_SERVICE) as? PrintManager)?.let { printManager ->
             val jobName = "${activity.getString(R.string.app_name)} Document"
