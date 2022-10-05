@@ -124,8 +124,9 @@ object PrintUtil {
         builder.append("body { margin-top: 2em; font-size: 24pt; }\n")
         builder.append("#merchant-name { font-size: 36pt; }\n")
         builder.append("#report-time { font-size: 24pt; color: gray; }\n")
-        builder.append("#report-range { font-size: 24pt; margin-top: 2em;}\n")
-        builder.append("table { margin-top: 1em; width: 100%; font-size: 24pt; }\n")
+        builder.append("#report-range { font-size: 24pt; margin-top: 2em; }\n")
+        builder.append("#fiat-warning { font-size: 20pt; margin: auto; width: 75%; }\n")
+        builder.append("table { width: 100%; font-size: 24pt; margin-top: 1em; margin-bottom: 1em; }\n")
         builder.append("th, td { padding: 10px; overflow-wrap: break-word; }\n")
         builder.append("th { text-align: left; }\n")
         builder.append("</style></head>")
@@ -137,7 +138,7 @@ object PrintUtil {
         builder.append(merchantName).append(" Sales Report")
         builder.append("</div>")
         builder.append("<div id=\"report-time\">")
-        builder.append("Generated at ").append(reportTime)
+        builder.append("Generated on ").append(reportTime)
         builder.append("</div>")
 
         builder.append("<div id=\"transaction-area\">")
@@ -145,6 +146,7 @@ object PrintUtil {
         builder.append("<table>")
         builder.append("<tr><th>Sale Time</th><th>BCH Amount</th><th>Fiat Equiv.</th></tr>")
         var totalBch = 0L
+        var totalFiat = 0.0
         for (transaction in reportTransactions) {
             val paymentRecord = transaction.toPaymentRecord()
             val txTimeInMillis = TimeUnit.SECONDS.toMillis(paymentRecord.timeInSec)
@@ -160,10 +162,14 @@ object PrintUtil {
             builder.append("</td>")
             builder.append("</tr>")
             totalBch += paymentRecord.bchAmount
+            val fiatValueOnly = paymentRecord.fiatAmount?.replace(Regex("[^0-9,.]"), "")
+            totalFiat += fiatValueOnly?.toDoubleOrNull() ?: 0.0
         }
         val totalBchString = AmountUtil(context).satsToBch(totalBch)
-        builder.append("<tr><th>Total</th><th>$totalBchString</th><th></th></tr>")
+        val totalFiatString = AmountUtil(context).formatFiat(totalFiat)
+        builder.append("<tr><th>Total</th><th>$totalBchString</th><th>$totalFiatString*</th></tr>")
         builder.append("</table>")
+        builder.append("<p id=\"fiat-warning\">* fiat total may be inaccurate if multiple currencies are present</p>")
         builder.append("</div>")
 
         builder.append("</div>")
