@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
@@ -13,10 +14,17 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -42,8 +50,7 @@ import okhttp3.OkHttpClient
 open class MainActivity : AppCompatActivity(), WebSocketListener {
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var networkStateReceiver: NetworkStateReceiver
-    lateinit var toolbar: Toolbar
-        private set
+    var toolbar: Toolbar? = null
     lateinit var rootView: ViewGroup
         private set
 
@@ -70,6 +77,7 @@ open class MainActivity : AppCompatActivity(), WebSocketListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         if (resources.getBoolean(R.bool.portrait_only)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -77,7 +85,23 @@ open class MainActivity : AppCompatActivity(), WebSocketListener {
 
         Analytics.configure(application, this)
         setContentView(R.layout.activity_main)
-        rootView = findViewById(R.id.content_frame)
+        rootView = findViewById<LinearLayout>(R.id.content_frame)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Apply padding to avoid overlapping with system bars
+            view.updatePadding(
+                top = systemBarsInsets.top,
+                bottom = systemBarsInsets.bottom,
+                left = systemBarsInsets.left,
+                right = systemBarsInsets.right
+            )
+
+            // Return the insets so children can also consume them if needed
+            insets
+        }
+
+
         setToolbar()
         setNavigationDrawer()
         title = "" // clear "Bitcoin Cash Register" from toolBar when opens on Payment Input screen
@@ -145,7 +169,7 @@ open class MainActivity : AppCompatActivity(), WebSocketListener {
     }
 
     private fun setToolbar() {
-        toolbar = findViewById(R.id.toolbar)
+        toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
     }
 

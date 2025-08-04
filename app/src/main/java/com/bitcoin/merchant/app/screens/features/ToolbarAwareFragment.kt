@@ -17,7 +17,7 @@ import com.bitcoin.merchant.app.util.AppUtil
 abstract class ToolbarAwareFragment : Fragment() {
     lateinit var activity: MainActivity
     val isActivityInitialized get() = this::activity.isInitialized
-    private lateinit var toolbar: Toolbar
+    var toolbar: Toolbar? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         activity = getActivity() as MainActivity
         toolbar = activity.toolbar
@@ -34,31 +34,31 @@ abstract class ToolbarAwareFragment : Fragment() {
     }
 
     fun setToolbarVisible(enabled: Boolean) {
-        toolbar.visibility = if (enabled) View.VISIBLE else View.GONE
+        toolbar?.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
     fun setToolbarAsMenuButton() {
         setToolbarVisible(true)
-        toolbar.setTitleTextColor(Color.BLACK)
-        toolbar.setNavigationIcon(R.drawable.ic_menu_black_24dp)
-        toolbar.setNavigationOnClickListener { activity.openMenuDrawer() }
+        toolbar?.setTitleTextColor(Color.BLACK)
+        toolbar?.setNavigationIcon(R.drawable.ic_menu_black_24dp)
+        toolbar?.setNavigationOnClickListener { activity.openMenuDrawer() }
     }
 
     fun setToolbarAsBackButton() {
         setToolbarVisible(true)
-        toolbar.setTitleTextColor(Color.BLACK)
-        toolbar.setNavigationIcon(R.drawable.ic_back_black_24dp)
-        toolbar.setNavigationOnClickListener { activity.onBackPressed() }
+        toolbar?.setTitleTextColor(Color.BLACK)
+        toolbar?.setNavigationIcon(R.drawable.ic_back_black_24dp)
+        toolbar?.setNavigationOnClickListener { activity.onBackPressed() }
     }
 
     fun clearToolbarTitle() {
         setToolbarVisible(true)
-        toolbar.title = ""
+        toolbar?.title = ""
     }
 
     fun setToolbarTitle(titleResourceId: Int) {
         setToolbarVisible(true)
-        toolbar.setTitle(titleResourceId)
+        toolbar?.setTitle(titleResourceId)
     }
 
     val app: CashRegisterApplication
