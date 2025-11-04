@@ -17,30 +17,12 @@ public class CurrencyRate {
         this.symbol = symbol;
     }
 
-    private static double findBchRate(CurrencyRate[] rates) {
-        double bchRate = 0;
-        for (CurrencyRate rate : rates) {
-            if ("BCH".equals(rate.code)) {
-                bchRate = rate.rate;
-                break;
-            }
-        }
-        return bchRate;
-    }
-
-    public static Map<String, CurrencyRate> convertFromBtcToBch(CurrencyRate[] btcRates, Map<String, String> tickerToSymbol) {
+    public static Map<String, CurrencyRate> convertToMap(CurrencyRate[] bchRates, Map<String, String> tickerToSymbol) {
         Map<String, CurrencyRate> tickerToRate = new TreeMap<>();
-        double bchRate = findBchRate(btcRates);
-        for (CurrencyRate cr : btcRates) {
-            if (!cr.name.toLowerCase().contains("coin")) {
-                BigDecimal bchValue = new BigDecimal(cr.rate / bchRate).setScale(2, BigDecimal.ROUND_CEILING);
-                double price = bchValue.doubleValue();
-                String ticker = cr.code;
-                String symbol = tickerToSymbol.get(ticker);
-                CurrencyRate crBch = new CurrencyRate(ticker, cr.name, price, symbol);
-                tickerToRate.put(ticker, crBch);
-                // System.out.println(tickerToSymbol.get(ticker) + " " + currency.name + " => " + bchValue.toPlainString());
-            }
+        for (CurrencyRate cr : bchRates) {
+            String symbol = tickerToSymbol.get(cr.code);
+            CurrencyRate crWithSymbol = new CurrencyRate(cr.code, cr.name, cr.rate, symbol);
+            tickerToRate.put(cr.code, crWithSymbol);
         }
         return tickerToRate;
     }

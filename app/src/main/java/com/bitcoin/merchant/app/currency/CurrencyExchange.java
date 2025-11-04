@@ -4,18 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import com.google.gson.Gson;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -26,20 +21,14 @@ public class CurrencyExchange {
     private static CurrencyExchange instance;
     private final Context context;
     private final Map<String, CurrencyRate> tickerToRate = Collections.synchronizedMap(new TreeMap<String, CurrencyRate>());
-    private final CurrencyToLocales currencyToLocales;
     private final Map<String, String> tickerToSymbol;
-    private final Map<String, String> countryToName;
-    private final Map<String, String> countryToCurrency;
     private volatile long lastUpdate;
 
     private CurrencyExchange(Context context) {
         this.context = context;
         tickerToSymbol = CountryJsonUtil.readFromJsonFile(context, "currency_symbols.json", TreeMap.class);
-        countryToName = CountryJsonUtil.readFromJsonFile(context, "country_to_name.json", TreeMap.class);
-        countryToCurrency = CountryJsonUtil.readFromJsonFile(context, "country_to_currency.json", TreeMap.class);
-        currencyToLocales = CountryJsonUtil.readFromJsonFile(context, "currency_to_locales.json", CurrencyToLocales.class);
         CurrencyRate[] btcRates = CountryJsonUtil.readFromJsonFile(context, "example_rates.json", CurrencyRate[].class);
-        tickerToRate.putAll(CurrencyRate.convertFromBtcToBch(btcRates, tickerToSymbol));
+        tickerToRate.putAll(CurrencyRate.convertToMap(btcRates, tickerToSymbol));
         loadFromStore();
     }
 
@@ -67,65 +56,9 @@ public class CurrencyExchange {
         }
     }
 
-    public List<CountryCurrency> getCountryCurrencies() {
-        List<CountryCurrency> cc = new ArrayList<>();
-        for (String country : countryToName.keySet()) {
-            String currency = countryToCurrency.get(country);
-            CurrencyRate cr = getCurrencyRate(currency);
-            if (cr != null && isCountrySupported(country)) {
-                CountryLocales[] countryLocalesList = currencyToLocales.get(currency);
-                if (countryLocalesList != null) {
-                    for (CountryLocales countryLocales : countryLocalesList) {
-                        if (countryLocales.country.equals(country)) {
-                            cc.add(new CountryCurrency(countryLocales, getCountryName(country), cr));
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        Collections.sort(cc, CountryCurrency.BY_NAME);
-        return cc;
-    }
-
-    private boolean isCountrySupported(String country) {
-        return (country != null) && (country.length() > 0)
-                && CountryCurrency.isSupported(country)
-                && countryToName.containsKey(country);
-    }
-
-    private CountryLocales getCountryLocalesForCurrency(String currency, String country, String locale) {
-        if (StringUtils.isEmpty(country) || StringUtils.isEmpty(locale)) {
-            CountryLocales[] countryLocales = currencyToLocales.get(currency);
-            if ((countryLocales == null) || (countryLocales.length == 0)) {
-                return null;
-            }
-            return countryLocales[0];
-        }
-        return new CountryLocales(country, locale);
-    }
-
-    // WARNING: country & locale can be null due to legacy reasons
-    public CountryCurrency getCountryCurrency(String currency, String country, String locale) {
-        CurrencyRate cr = getCurrencyRate(currency);
-        if (cr == null) {
-            return null;
-        }
-        CountryLocales countryLocales = getCountryLocalesForCurrency(currency, country, locale);
-        if (countryLocales == null) {
-            return null;
-        }
-        return new CountryCurrency(countryLocales, getCountryName(countryLocales.country), cr);
-    }
-
     private void requestUpdatedExchangeRates() {
         if (isUpToDate()) return;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                checkCurrencyUpdate();
-            }
-        });
+        Thread t = new Thread(this::checkCurrencyUpdate);
         t.setDaemon(true);
         t.start();
     }
@@ -149,8 +82,8 @@ public class CurrencyExchange {
             return;
         }
         try {
-            CurrencyRate[] rates = getUrlAsJson("https://markets.api.bitcoin.com/rates?c=BTC", CurrencyRate[].class);
-            tickerToRate.putAll(CurrencyRate.convertFromBtcToBch(rates, tickerToSymbol));
+            CurrencyRate[] rates = getUrlAsJson("https://markets.api.bitcoin.com/rates?c=BCH", CurrencyRate[].class);
+            tickerToRate.putAll(CurrencyRate.convertToMap(rates, tickerToSymbol));
             lastUpdate = System.currentTimeMillis();
             saveToStore();
             Log.i("CurrencyExchange", "rates updated 1 BCH=$" + tickerToRate.get("USD").rate);
@@ -188,25 +121,13 @@ public class CurrencyExchange {
         return getCurrencyRate(ticker) != null;
     }
 
-    public String getCountryName(String countryCode) {
-        String name = countryToName.get(countryCode);
-        return name == null ? "" : name;
-    }
-
     public Double getCurrencyPrice(String ticker) {
         CurrencyRate rate = getCurrencyRate(ticker);
         Double price = (rate == null) ? null : rate.rate;
         return (price == null) ? 0 : price;
     }
 
-    public String getCurrencySymbol(String ticker) {
-        return tickerToSymbol.get(ticker);
-    }
-
     public CurrencyRate getCurrencyRate(String ticker) {
         return (ticker != null) && (ticker.length() > 0) ? tickerToRate.get(ticker) : null;
-    }
-
-    private static class CurrencyToLocales extends TreeMap<String, CountryLocales[]> {
     }
 }
