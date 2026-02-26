@@ -46,6 +46,7 @@ import com.bitcoin.merchant.app.util.ScanQRUtil
 import com.bitcoin.merchant.app.util.Settings
 import com.google.android.material.navigation.NavigationView
 import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 open class MainActivity : AppCompatActivity(), WebSocketListener {
     private lateinit var mDrawerLayout: DrawerLayout
@@ -124,7 +125,11 @@ open class MainActivity : AppCompatActivity(), WebSocketListener {
         if (!this::pollerSocket.isInitialized || !pollerSocket.isConnected) {
             if (this::pollerSocket.isInitialized)
                 pollerSocket.stop()
-            pollerSocket = PollerSocket(this, OkHttpClient())
+            pollerSocket = PollerSocket(this, OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .build())
             pollerSocket.start()
         }
 

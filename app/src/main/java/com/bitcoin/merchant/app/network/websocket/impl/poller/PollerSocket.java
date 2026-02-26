@@ -40,6 +40,7 @@ public class PollerSocket implements TxWebSocketHandler {
     private String BASE_URL = "https://bchrest.api.wombat.systems/v2/address/utxo/";
 
     private ScheduledExecutorService executorService;
+    private volatile boolean polling = false;
 
     private final Set<String> subscribedAddresses = new HashSet<>();
 
@@ -95,6 +96,11 @@ public class PollerSocket implements TxWebSocketHandler {
 
     private Runnable createPollerTask() {
         return () -> {
+            if (polling) {
+                Log.i("Poller Task", "Previous poll still in progress, skipping");
+                return;
+            }
+            polling = true;
             Log.i("Poller Task", "Polling for new transactions");
 
             try {
@@ -105,14 +111,17 @@ public class PollerSocket implements TxWebSocketHandler {
                             .url(query)
                             .header("Authorization", BuildConfig.API_KEY)
                             .build();
-                    Response execute = okHttpClient.newCall(request).execute();
-                    JSONObject jsonObject = new JSONObject(execute.body().string());
-                    JSONArray utxos = jsonObject.getJSONArray("utxos");
-                    Log.i("Poller Task", "Found " + utxos.length() + " utxos for address " + subscribedAddress);
-                    searchUtxos(subscribedAddress, utxos);
+                    try (Response execute = okHttpClient.newCall(request).execute()) {
+                        JSONObject jsonObject = new JSONObject(execute.body().string());
+                        JSONArray utxos = jsonObject.getJSONArray("utxos");
+                        Log.i("Poller Task", "Found " + utxos.length() + " utxos for address " + subscribedAddress);
+                        searchUtxos(subscribedAddress, utxos);
+                    }
                 }
             } catch (Exception e) {
                 Log.e("Poller Task", "Error while polling for new transactions", e);
+            } finally {
+                polling = false;
             }
         };
     }
