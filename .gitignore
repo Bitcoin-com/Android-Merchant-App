@@ -63,4 +63,4 @@ proguard/
 /captures
 .externalNativeBuild
 /.idea/
-/apikey.properties
+apikey.properties

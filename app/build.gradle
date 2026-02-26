@@ -27,6 +27,10 @@ android {
         if (restApiKey != null) {
             buildConfigField("String", "API_KEY", "\"${restApiKey}\"")
         }
+        def pricesUrl = apikeyProps.getProperty("pricesUrl")
+        if(pricesUrl != null) {
+            buildConfigField("String", "PRICES_URL", "\"${pricesUrl}\"")
+        }
     }
 
     buildFeatures {

@@ -2,8 +2,12 @@ package com.bitcoin.merchant.app.currency;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.bitcoin.merchant.app.BuildConfig;
+import com.bitcoin.merchant.app.util.JsonUtil;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,17 +22,18 @@ public class CurrencyExchange {
     public static final int MINIMUM_INTERVAL_BETWEEN_UPDATE_IN_MS = 3 * 60 * 1000;
     public static final int RATE_WARNING_THRESHOLD_IN_MS = 120 * 60 * 1000;
     public static final String TAG = "CurrencyExchange";
+    private final Handler threadHandler = new Handler();
     private static CurrencyExchange instance;
     private final Context context;
-    private final Map<String, CurrencyRate> tickerToRate = Collections.synchronizedMap(new TreeMap<String, CurrencyRate>());
+    private final Map<String, ExchangeRate> tickerToRate = Collections.synchronizedMap(new TreeMap<>());
     private final Map<String, String> tickerToSymbol;
     private volatile long lastUpdate;
 
     private CurrencyExchange(Context context) {
         this.context = context;
-        tickerToSymbol = CountryJsonUtil.readFromJsonFile(context, "currency_symbols.json", TreeMap.class);
-        CurrencyRate[] btcRates = CountryJsonUtil.readFromJsonFile(context, "example_rates.json", CurrencyRate[].class);
-        tickerToRate.putAll(CurrencyRate.convertToMap(btcRates, tickerToSymbol));
+        tickerToSymbol = JsonUtil.readFromJsonFile(context, "currency_symbols.json", TreeMap.class);
+        ExchangeRatesJson bchRates = JsonUtil.readFromJsonFile(context, "example_rates.json", ExchangeRatesJson.class);
+        tickerToRate.putAll(ExchangeRate.convertToMap(bchRates.rates, tickerToSymbol));
         loadFromStore();
     }
 
@@ -81,15 +86,22 @@ public class CurrencyExchange {
         if (isUpToDate()) {
             return;
         }
-        try {
-            CurrencyRate[] rates = getUrlAsJson("https://markets.api.bitcoin.com/rates?c=BCH", CurrencyRate[].class);
-            tickerToRate.putAll(CurrencyRate.convertToMap(rates, tickerToSymbol));
-            lastUpdate = System.currentTimeMillis();
-            saveToStore();
-            Log.i("CurrencyExchange", "rates updated 1 BCH=$" + tickerToRate.get("USD").rate);
-        } catch (Exception e) {
-            Log.e(TAG, "", e);
-        }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    ExchangeRatesJson rates = getUrlAsJson(BuildConfig.PRICES_URL, ExchangeRatesJson.class);
+                    threadHandler.post(() -> {
+                        tickerToRate.putAll(ExchangeRate.convertToMap(rates.rates, tickerToSymbol));
+                        lastUpdate = System.currentTimeMillis();
+                        saveToStore();
+                        Log.i("CurrencyExchange", "rates updated 1 BCH=$" + tickerToRate.get("USD").rate);
+                    });
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString(), e);
+                }
+            }
+        }.start();
     }
 
     private ArrayList<String> getTickers() {
@@ -102,7 +114,7 @@ public class CurrencyExchange {
         for (String ticker : getTickers()) {
             String name = prefs.getString(ticker + "-NAME", null);
             double price = Double.longBitsToDouble(prefs.getLong(ticker, defaultPrice));
-            tickerToRate.put(ticker, new CurrencyRate(ticker, name, price, tickerToSymbol.get(ticker)));
+            tickerToRate.put(ticker, new ExchangeRate(ticker, price, tickerToSymbol.get(ticker), name));
         }
     }
 
@@ -110,9 +122,9 @@ public class CurrencyExchange {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         for (String ticker : getTickers()) {
-            CurrencyRate cr = tickerToRate.get(ticker);
-            editor.putLong(ticker, Double.doubleToRawLongBits(cr.rate));
-            editor.putString(ticker + "-NAME", cr.name);
+            ExchangeRate er = tickerToRate.get(ticker);
+            editor.putLong(ticker, Double.doubleToRawLongBits(er.rate));
+            editor.putString(ticker + "-NAME", er.name);
         }
         editor.commit();
     }
@@ -122,12 +134,12 @@ public class CurrencyExchange {
     }
 
     public Double getCurrencyPrice(String ticker) {
-        CurrencyRate rate = getCurrencyRate(ticker);
+        ExchangeRate rate = getCurrencyRate(ticker);
         Double price = (rate == null) ? null : rate.rate;
         return (price == null) ? 0 : price;
     }
 
-    public CurrencyRate getCurrencyRate(String ticker) {
+    public ExchangeRate getCurrencyRate(String ticker) {
         return (ticker != null) && (ticker.length() > 0) ? tickerToRate.get(ticker) : null;
     }
 }

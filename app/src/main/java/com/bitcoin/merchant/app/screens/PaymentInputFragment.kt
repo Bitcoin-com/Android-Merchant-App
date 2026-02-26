@@ -69,13 +69,13 @@ class PaymentInputFragment : ToolbarAwareFragment() {
         setToolbarAsMenuButton()
         clearToolbarTitle()
         currencyExchange = CurrencyExchange.getInstance(context)
-        runBlocking { currencyExchange?.forceExchangeRateUpdates() }
+        currencyExchange?.forceExchangeRateUpdates()
         //Initialize rates upon launch.
         getCurrencyPrice()
 
         outOfDateRates.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             if(it == true) {
-                GlobalScope.launch { currencyExchange?.forceExchangeRateUpdates() }
+                currencyExchange?.forceExchangeRateUpdates()
                 SnackHelper.show(activity, activity.getString(R.string.out_of_date_fiat_rates), error = true)
             }
         })

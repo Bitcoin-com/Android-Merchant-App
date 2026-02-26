@@ -1,18 +1,15 @@
-package com.bitcoin.merchant.app.currency
+package com.bitcoin.merchant.app.util
 
-import android.app.Activity
 import android.content.Context
-import android.os.Build
-import android.view.WindowManager
-import org.bitcoindotcom.bchprocessor.bip70.GsonHelper.gson
+import org.bitcoindotcom.bchprocessor.bip70.GsonHelper
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class CountryJsonUtil {
+class JsonUtil {
     companion object {
         @JvmStatic
         fun <T> readFromJsonFile(ctx: Context, fileName: String, classOfT: Class<T>): T {
-            return gson.fromJson(readFromfile(fileName, ctx), classOfT)
+            return GsonHelper.gson.fromJson(readFromfile(fileName, ctx), classOfT)
         }
 
         private fun readFromfile(fileName: String, context: Context): String {
